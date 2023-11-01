@@ -5,7 +5,10 @@ import { ICategoriesRepository } from "../../modules/jobs/repositories/ICategori
 import { CategoriesRepository } from "../../modules/jobs/infra/typeorm/repositories/CategoriesRepository";
 import { SpecificationsRepository } from "../../modules/jobs/infra/typeorm/repositories/SpecificationsRepository";
 import { ISpecificationsRepository } from "../../modules/jobs/repositories/ISpecificationsRepository";
+import { IJobsRepository } from "../../modules/jobs/repositories/IJobsRepository";
+import { JobsRepository } from "../../modules/jobs/infra/typeorm/repositories/JobsRepository";
 
 container.registerSingleton<ICategoriesRepository>("CategoriesRepository", CategoriesRepository);
 container.registerSingleton<ISpecificationsRepository>("SpecificationRepository", SpecificationsRepository);
 container.registerSingleton<IUsersRepository>("UsersRepository", UsersRepository);
+container.registerSingleton<IJobsRepository>("JobsRepository", JobsRepository);

@@ -1,3 +1,4 @@
+//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
 import { inject, injectable } from "tsyringe";
 import { ICategoriesRepository } from "../../repositories/ICategoriesRepository";
 import { AppError } from "../../../../shared/errors/AppError";

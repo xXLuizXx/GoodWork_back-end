@@ -1,4 +1,6 @@
-import { IJobsRepository } from "modules/jobs/repositories/IJobsRepository";
+import { AppError } from "../../../../shared/errors/AppError";
+import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
+import { Job } from "../../../../modules/jobs/infra/typeorm/entities/Job";
 import { inject, injectable } from "tsyringe"
 
 interface IRequest {
@@ -16,12 +18,29 @@ interface IRequest {
 @injectable()
 class CreateJobUseCase{
 
-    constructor(@inject("JobsRepository")private jobsRepository: IJobsRepository){}
+    constructor(
+        @inject("JobsRepository")
+        private jobsRepository: IJobsRepository
+    ) {}
 
-    async execute({ vacancy, requirements, workload, location, 
-                    benefits, banner, resume_candidate, category_id }: IRequest): Promise<void>{
+    async execute({ 
+        vacancy,
+        requirements,
+        workload,
+        location, 
+        benefits,
+        banner,
+        resume_candidate,
+        category_id 
+    }: IRequest): Promise<Job> {
 
-        this.jobsRepository.create({
+        const vacancyAlreadyExists = await this.jobsRepository.fyndByVacancy(vacancy);
+
+        if(vacancyAlreadyExists){
+            throw new AppError("Vacancy already exists!");
+        }
+
+        const job = await this.jobsRepository.create({
             vacancy,
             requirements,
             workload,
@@ -29,7 +48,9 @@ class CreateJobUseCase{
             benefits,
             banner,
             resume_candidate,
-            category_id});
+            category_id
+        });
+        return job;
     }
 }
 
