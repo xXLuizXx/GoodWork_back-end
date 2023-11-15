@@ -12,7 +12,6 @@ class JobsRepositoryInMemory implements IJobsRepository {
             location,
             benefits,
             banner,
-            resume_candidate,
             category_id
         }: ICreateJobsDTO): Promise<Job>{
             const job = new Job();
@@ -24,7 +23,6 @@ class JobsRepositoryInMemory implements IJobsRepository {
                     location,
                     benefits,
                     banner,
-                    resume_candidate,
                     category_id
                 });
 

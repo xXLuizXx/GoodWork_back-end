@@ -20,7 +20,6 @@ describe("Create job", () => {
             location: "test location",
             benefits: "test benefits",
             banner: "test banner",
-            resume_candidate: "test resume candidate",
             category_id: "test category id"
         });
 
@@ -36,7 +35,6 @@ describe("Create job", () => {
                 location: "test location",
                 benefits: "test benefits",
                 banner: "test banner",
-                resume_candidate: "test resume candidate",
                 category_id: "test category id"
             });
 
@@ -47,7 +45,6 @@ describe("Create job", () => {
                 location: "test location",
                 benefits: "test benefits",
                 banner: "test banner",
-                resume_candidate: "test resume candidate",
                 category_id: "test category id"
             });
         }).rejects.toBeInstanceOf(AppError);
@@ -61,7 +58,6 @@ describe("Create job", () => {
             location: "test location",
             benefits: "test benefits",
             banner: "test banner",
-            resume_candidate: "test resume candidate",
             category_id: "test category id"
         });
         console.log(job);

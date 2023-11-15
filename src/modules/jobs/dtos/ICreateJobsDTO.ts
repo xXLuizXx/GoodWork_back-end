@@ -5,7 +5,6 @@ interface ICreateJobsDTO{
     location: string;
     benefits?: string;
     banner: string;
-    resume_candidate?: string;
     category_id: string;
 }
 

@@ -11,7 +11,6 @@ class CreateJobController {
             location, 
             benefits,
             banner,
-            resume_candidate,
             category_id
         } = request.body;
         const createJobUseCase = container.resolve(CreateJobUseCase);
@@ -23,7 +22,6 @@ class CreateJobController {
             location, 
             benefits,
             banner,
-            resume_candidate,
             category_id 
         });
 

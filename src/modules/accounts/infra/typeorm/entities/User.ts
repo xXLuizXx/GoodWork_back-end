@@ -40,7 +40,7 @@ class User{
     password: string;
     
     @Column()
-    access_type: string;
+    isAdmin: boolean;
 
     @Column()
     avatar: string;

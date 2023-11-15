@@ -16,7 +16,7 @@ class CreateUserController{
             functionn,
             email,
             password,
-            access_type} = request.body;
+            isAdmin} = request.body;
         
         const createUserUseCase = container.resolve(CreateUserUseCase);
 
@@ -32,7 +32,7 @@ class CreateUserController{
             functionn,
             email,
             password,
-            access_type
+            isAdmin
         });
 
         return response.status(201).send();

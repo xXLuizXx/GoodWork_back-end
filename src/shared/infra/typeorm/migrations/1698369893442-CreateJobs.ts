@@ -37,10 +37,6 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         type: "varchar"
                     },
                     {
-                        name: "resume_candidate",
-                        type: "varchar"
-                    },
-                    {
                         name: "vacancy_available",
                         type: "boolean",
                         default: true

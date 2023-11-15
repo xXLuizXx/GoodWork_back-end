@@ -26,9 +26,6 @@ class Job {
     banner: string;
     
     @Column()
-    resume_candidate: string;
-    
-    @Column()
     vacancy_available: boolean;
     
     @ManyToOne(() => Category)

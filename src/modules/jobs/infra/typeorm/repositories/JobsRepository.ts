@@ -9,7 +9,7 @@ class JobsRepository implements IJobsRepository{
     constructor(){
         this.repository = getRepository(Job);
     }
-    async create({vacancy, requirements, workload, location, benefits, banner, resume_candidate, category_id}: ICreateJobsDTO): Promise<Job> {
+    async create({vacancy, requirements, workload, location, benefits, banner, category_id}: ICreateJobsDTO): Promise<Job> {
         const job = this.repository.create({
             vacancy,
             requirements,
@@ -17,7 +17,6 @@ class JobsRepository implements IJobsRepository{
             location,
             benefits,
             banner,
-            resume_candidate,
             category_id
         });
         

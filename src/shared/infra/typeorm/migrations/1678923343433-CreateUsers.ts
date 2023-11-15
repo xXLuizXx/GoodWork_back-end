@@ -62,9 +62,8 @@ export class CreateUsers1678919331334 implements MigrationInterface {
                         type: "varchar"
                     },
                     {
-                        name: "access_type",
-                        type: "varchar",
-                        comment: "employee, boss, adimin"
+                        name: "isAdmin",
+                        type: "boolean"
                     },
                     {
                         name: "created_at",
