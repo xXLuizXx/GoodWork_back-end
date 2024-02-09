@@ -141,7 +141,7 @@ docker build -t project .
   sudo docker start idcontainer -> iniciar um container pausado
   sudo docker exec -it nome/id /bin/bash -> acessar a imagem da maquina
   sudo docker-compose up --force-recreate -> recria o container
-  
+  sudo docker-compose down
   
   yarn typeorm migration:generate
  1001  yarn typeorm migration:drop
