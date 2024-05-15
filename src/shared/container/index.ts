@@ -10,7 +10,6 @@ import { JobsRepository } from "../../modules/jobs/infra/typeorm/repositories/Jo
 import { IUsersTokensRepository } from "../../modules/accounts/repositories/IUsersTokensRepository";
 import { UsersTokensRepository } from "../../modules/accounts/infra/typeorm/repositories/UsersTokensRepository";
 
-
 container.registerSingleton<ICategoriesRepository>("CategoriesRepository", CategoriesRepository);
 container.registerSingleton<ISpecificationsRepository>("SpecificationRepository", SpecificationsRepository);
 container.registerSingleton<IUsersRepository>("UsersRepository", UsersRepository);

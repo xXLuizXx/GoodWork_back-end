@@ -4,9 +4,9 @@ import { sign } from "jsonwebtoken";
 import { IUsersRepository } from "../../../../modules/accounts/repositories/IUsersRepository";
 import { IUsersTokensRepository } from "../../../../modules/accounts/repositories/IUsersTokensRepository";
 import { AppError } from "../../../../shared/errors/AppError";
-import { IDateProvider } from "../../../../shared/container/provider/DateProvider/IDateProvider";
+import { IDateProvider } from "../../../../shared/container/providers/DateProvider/IDateProvider";
 import { inject, injectable } from "tsyringe";
-import { DayjsDateProvider } from "../../../../shared/container/provider/DateProvider/implementations/DayjsDateProvider";
+import { DayjsDateProvider } from "../../../../shared/container/providers/DateProvider/implementations/DayjsDateProvider";
 
 
 interface IRequest {

@@ -59,7 +59,9 @@ export class CreateUsers1678919331334 implements MigrationInterface {
                     },
                     {
                         name: "isAdmin",
-                        type: "boolean"
+                        type: "boolean",
+                        default: false,
+                        isNullable: false,
                     },
                     {
                         name: "avatar",

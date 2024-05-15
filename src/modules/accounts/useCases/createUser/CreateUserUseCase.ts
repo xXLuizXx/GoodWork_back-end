@@ -29,7 +29,6 @@ class CreateUserUseCase{
             functionn, 
             email, 
             password: passwordHash,
-            isAdmin
         });
     }
 }

@@ -11,7 +11,7 @@ interface ICreateUsersDTO{
     functionn: string;
     email: string;
     password: string;
-    isAdmin: boolean;
+    isAdmin?: boolean;
     id?: string;
     avatar?: string;
 

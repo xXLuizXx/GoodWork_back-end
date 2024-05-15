@@ -32,7 +32,6 @@ class CreateUserController{
             functionn,
             email,
             password,
-            isAdmin
         });
 
         return response.status(201).send();

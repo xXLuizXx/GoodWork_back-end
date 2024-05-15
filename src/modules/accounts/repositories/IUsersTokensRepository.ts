@@ -20,4 +20,4 @@ interface IUsersTokensRepository {
   deleteByUserId(id: string): Promise<void>;
 }
 
-export type{ IUsersTokensRepository };
+export { IUsersTokensRepository };
