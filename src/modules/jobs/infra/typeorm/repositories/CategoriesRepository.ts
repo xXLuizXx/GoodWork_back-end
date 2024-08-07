@@ -3,9 +3,6 @@ import { ICategoriesRepository, ICreatedCategoryDTO } from "../../../repositorie
 import { getRepository, Repository } from "typeorm";
 //DTO -> Data Transfer Object
 
-
-
-
 class CategoriesRepository implements ICategoriesRepository {
     private repository: Repository<Category>;
     
@@ -24,6 +21,7 @@ class CategoriesRepository implements ICategoriesRepository {
 
     async list(): Promise<Category[]>{
         const categories = await this.repository.find();
+
         return categories;
     }
 

@@ -6,6 +6,7 @@ class ListCategoriesController{
     async handle(request: Request, response: Response): Promise<Response>{
         const listCategoriesUseCase = container.resolve(ListCategoriesUseCase);
         const lista = await listCategoriesUseCase.execute();
+
         return response.json(lista);
     }
 }

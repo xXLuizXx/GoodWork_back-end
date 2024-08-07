@@ -47,6 +47,11 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         isNullable: true
                     },
                     {
+                        name: "valid_vacancy",
+                        type: "boolean",
+                        default: false
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()",

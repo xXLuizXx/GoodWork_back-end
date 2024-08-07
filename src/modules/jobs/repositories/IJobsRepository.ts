@@ -4,6 +4,7 @@ import { Job } from "../infra/typeorm/entities/Job";
 interface IJobsRepository{
     create(data: ICreateJobsDTO): Promise<Job>;
     fyndByVacancy(vacancy: string): Promise<Job>;
+    list(): Promise<Job[]>;
 }
 
-export { IJobsRepository }
+export type { IJobsRepository }

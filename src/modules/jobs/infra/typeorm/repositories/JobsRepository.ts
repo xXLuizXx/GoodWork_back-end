@@ -28,6 +28,12 @@ class JobsRepository implements IJobsRepository{
 
         return job;
     }
+
+    async list(): Promise<Job[]>{
+        const job = await this.repository.find();
+
+        return job;
+    }
     
 }
 
