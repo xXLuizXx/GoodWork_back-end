@@ -8,5 +8,5 @@ const jobsRoutes = Router();
 const createJobsController = new CreateJobController;
 const listJobsController = new ListJobsController;
 jobsRoutes.post("/", ensureAuthenticated, ensureAdmin, createJobsController.handle);
-jobsRoutes.get("/list", listJobsController.handler);
+jobsRoutes.get("/list", ensureAuthenticated, listJobsController.handler);
 export { jobsRoutes }

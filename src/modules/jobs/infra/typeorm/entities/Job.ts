@@ -38,6 +38,8 @@ class Job {
     @CreateDateColumn()
     created_at: Date;
 
+    @Column()
+    valid_vacancy: boolean;
     constructor(){
         if(!this.id){
             this.id = uuidV4();

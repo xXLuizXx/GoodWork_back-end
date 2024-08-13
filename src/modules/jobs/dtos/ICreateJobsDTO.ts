@@ -6,6 +6,7 @@ interface ICreateJobsDTO{
     benefits?: string;
     banner: string;
     category_id: string;
+    valid_vacancy: boolean;
 }
 
 export { ICreateJobsDTO }
