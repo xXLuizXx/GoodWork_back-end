@@ -16,7 +16,7 @@ class CreateUserController{
             functionn,
             email,
             password,
-            isAdmin} = request.body;
+            } = request.body;
         
         const createUserUseCase = container.resolve(CreateUserUseCase);
 

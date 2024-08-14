@@ -17,6 +17,14 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         type: "varchar"
                     },
                     {
+                        name: "contractor",
+                        type: "varchar"
+                    },
+                    {
+                        name: "description_vacancy",
+                        type: "Varchar"
+                    },
+                    {
                         name: "requirements",
                         type: "varchar"
                     },
@@ -52,6 +60,11 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         default: false
                     },
                     {
+                        name: "user_id",
+                        type: "uuid",
+                        isNullable: true
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()",
@@ -63,6 +76,14 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         referencedTableName: "categories",
                         referencedColumnNames: ["id"],
                         columnNames: ["category_id"],
+                        onDelete: "SET NULL",
+                        onUpdate: "SET NULL",
+                    },
+                    {
+                        name: "fk_jobs_user_id",
+                        referencedTableName: "users",
+                        referencedColumnNames: ["id"],
+                        columnNames: ["user_id"],
                         onDelete: "SET NULL",
                         onUpdate: "SET NULL",
                     }

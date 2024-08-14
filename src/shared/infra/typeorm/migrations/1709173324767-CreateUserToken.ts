@@ -31,7 +31,7 @@ export class CreateUserToken1633657103223 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            name: "FKUserToken",
+            name: "fk_userToken_user_id",
             referencedTableName: "users",
             referencedColumnNames: ["id"],
             columnNames: ["user_id"],

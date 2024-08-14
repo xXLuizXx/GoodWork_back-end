@@ -4,13 +4,16 @@ import { Job } from "../../../../modules/jobs/infra/typeorm/entities/Job";
 import { inject, injectable } from "tsyringe"
 
 interface IRequest {
-   vacancy: string;
-   requirements: string;
-   workload: string;
-   location: string;
-   benefits: string;
-   banner: string;
-   category_id: string;
+    vacancy: string;
+    contractor: string;
+    description_vacancy: string
+    requirements: string;
+    workload: string;
+    location: string;
+    benefits: string;
+    banner: string;
+    category_id: string;
+    user_id: string;
 }
 
 
@@ -24,12 +27,15 @@ class CreateJobUseCase{
 
     async execute({ 
         vacancy,
+        contractor,
+        description_vacancy,
         requirements,
         workload,
         location, 
         benefits,
         banner,
-        category_id 
+        category_id,
+        user_id
     }: IRequest): Promise<Job> {
 
         const vacancyAlreadyExists = await this.jobsRepository.fyndByVacancy(vacancy);
@@ -40,12 +46,15 @@ class CreateJobUseCase{
 
         const job = await this.jobsRepository.create({
             vacancy,
+            contractor,
+            description_vacancy,
             requirements,
             workload,
             location, 
             benefits,
             banner,
-            category_id
+            category_id,
+            user_id
         });
         return job;
     }
