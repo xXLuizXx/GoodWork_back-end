@@ -10,4 +10,5 @@ const listJobsController = new ListJobsController;
 jobsRoutes.post("/", ensureAuthenticated, ensureAdmin, createJobsController.handle);
 jobsRoutes.get("/list", ensureAuthenticated, listJobsController.handler);
 jobsRoutes.get("/listCategories", ensureAuthenticated, listJobsController.listJobsCategories);
+jobsRoutes.get("/listVacancy", listJobsController.listJobsVacancy);
 export { jobsRoutes }

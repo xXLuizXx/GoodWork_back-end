@@ -26,11 +26,6 @@ class JobsRepository implements IJobsRepository{
         await this.repository.save(job);
         return job;
     }
-    async fyndByVacancy(vacancy: string): Promise<Job> {
-        const job = await this.repository.findOne({vacancy});
-
-        return job;
-    }
 
     async list(): Promise<Job[]>{
         const job = await this.repository.createQueryBuilder('job')
@@ -74,6 +69,30 @@ class JobsRepository implements IJobsRepository{
                 "user.name"
             ])
             .where('job.category_id = :category_id', { category_id }).andWhere('job.valid_vacancy = true')
+            .getMany();
+
+        return jobs;
+    }
+
+    async findByVacancy(vacancy: string): Promise<Job[]>{
+        const jobs = await this.repository.createQueryBuilder('job')
+            .leftJoinAndSelect('job.user', 'user')
+            .select([
+                "job.id",
+                "job.vacancy",
+                "job.contractor",
+                "job.description_vacancy",
+                "job.requirements",
+                "job.workload",
+                "job.location",
+                "job.benefits",
+                "job.banner",
+                "job.valid_vacancy",
+                "job.category_id",
+                "job.user_id",
+                "user.name"
+            ])
+            .where('LOWER(job.vacancy) LIKE LOWER(:vacancy)', { vacancy: `%${vacancy}%` }).andWhere('job.valid_vacancy = true')
             .getMany();
 
         return jobs;
