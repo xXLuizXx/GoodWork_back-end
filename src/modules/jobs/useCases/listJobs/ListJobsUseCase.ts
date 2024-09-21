@@ -12,6 +12,11 @@ class ListJobsUseCase{
         return jobs;
     }
 
+    async executeCat(category_id: string): Promise<Job[]>{
+        const jobs = await this.jobsRepository.listByCategory(category_id);
+
+        return jobs;
+    }
 }
 
 export { ListJobsUseCase }

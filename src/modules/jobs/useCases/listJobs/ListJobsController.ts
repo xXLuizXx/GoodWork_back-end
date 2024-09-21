@@ -9,6 +9,15 @@ class ListJobsController{
 
         return response.json(allJobs);
     }
+
+    async listJobsCategories(request: Request, response: Response):Promise<Response>{
+        const { category_id } = request.query;
+        const lisJobs = container.resolve(ListJobsUseCase);
+
+        const jobsCategory = await lisJobs.executeCat(category_id);
+
+        return response.json(jobsCategory);
+    }
 }
 
 export { ListJobsController }
