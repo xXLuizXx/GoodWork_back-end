@@ -34,6 +34,9 @@ class User{
     functionn: string;
 
     @Column()
+    ability: string;
+
+    @Column()
     email: string;
 
     @Column()

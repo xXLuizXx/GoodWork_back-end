@@ -37,13 +37,6 @@ class CreateJobUseCase{
         category_id,
         user_id
     }: IRequest): Promise<Job> {
-
-        const vacancyAlreadyExists = await this.jobsRepository.fyndByVacancy(vacancy);
-
-        if(vacancyAlreadyExists){
-            throw new AppError("Vacancy already exists!");
-        }
-
         const job = await this.jobsRepository.create({
             vacancy,
             contractor,
@@ -56,6 +49,7 @@ class CreateJobUseCase{
             category_id,
             user_id
         });
+
         return job;
     }
 }

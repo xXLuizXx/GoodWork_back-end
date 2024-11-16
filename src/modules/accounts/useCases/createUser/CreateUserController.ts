@@ -14,6 +14,7 @@ class CreateUserController{
             telephone,
             is_employee,
             functionn,
+            ability,
             email,
             password,
             } = request.body;
@@ -30,6 +31,7 @@ class CreateUserController{
             telephone,
             is_employee,
             functionn,
+            ability,
             email,
             password,
         });

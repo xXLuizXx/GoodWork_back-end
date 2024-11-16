@@ -10,7 +10,7 @@ class UsersRepository implements IUsersRepository{
         this.repository = getRepository(User);
     }
     
-    async create({ name, road, number, identifier, neighborhood, sex, telephone, is_employee, functionn, email, password, isAdmin, id, avatar }: ICreateUsersDTO): Promise<void> {
+    async create({ name, road, number, identifier, neighborhood, sex, telephone, is_employee, functionn, ability, email, password, isAdmin, id, avatar }: ICreateUsersDTO): Promise<void> {
         const user = this.repository.create({
             name, 
             road, 
@@ -21,6 +21,7 @@ class UsersRepository implements IUsersRepository{
             telephone, 
             is_employee, 
             functionn,
+            ability,
             email, 
             password,
             isAdmin,
@@ -40,6 +41,22 @@ class UsersRepository implements IUsersRepository{
     async findById(id: string): Promise<User>{
         const user = await this.repository.findOne(id);
         return user;
+    }
+
+    async update(user: User): Promise<void>{
+        await this.repository.createQueryBuilder('user')
+        .update('users')
+        .set({
+            road: user.road,
+            number: user.number,
+            neighborhood: user.neighborhood,
+            telephone: user.telephone,
+            functionn: user.functionn,
+            ability: user.ability,
+            is_employee: user.is_employee
+        })
+        .where('id = :id', { id: user.id })
+        .execute();
     }
 }
 

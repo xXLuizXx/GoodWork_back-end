@@ -9,6 +9,7 @@ interface ICreateUsersDTO{
     telephone: string;
     is_employee: string;
     functionn: string;
+    ability: string;
     email: string;
     password: string;
     isAdmin?: boolean;

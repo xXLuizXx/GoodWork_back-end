@@ -13,6 +13,14 @@ class ProfileUserController{
         }
         return response.status(200).json(user);
     }
+
+    async updateDataProfileUser(request: Request, response: Response): Promise<Response>{
+        const { id, road, number, neighborhood, telephone, functionn, ability, is_employee } = request.body;
+        const profileUserUseCase = container.resolve(ProfileUserUseCase);
+
+        await profileUserUseCase.updateProfile({id, road, number, neighborhood, telephone, functionn, ability, is_employee});
+        return await response.status(200).send();
+    }
 }
 
 export { ProfileUserController };
