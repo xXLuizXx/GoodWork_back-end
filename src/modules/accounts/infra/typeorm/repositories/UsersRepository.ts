@@ -1,63 +1,140 @@
 import { getRepository, Repository } from "typeorm";
 import { ICreateUsersDTO } from "../../../dtos/ICreateUserDTO";
 import { User } from "../entities/User";
+import { IndividualUser } from "../entities/IndividualUser";
+import { CompanyUser } from "../entities/CompanyUser";
 import { IUsersRepository } from "../../../repositories/IUsersRepository";
+import { plainToClass } from "class-transformer";
 
-class UsersRepository implements IUsersRepository{
-    private repository: Repository<User>;
-    
-    constructor(){
-        this.repository = getRepository(User);
+class UsersRepository implements IUsersRepository {
+    private baseRepository: Repository<User>;
+    private individualRepository: Repository<IndividualUser>;
+    private companyRepository: Repository<CompanyUser>;
+
+    constructor() {
+        this.baseRepository = getRepository(User);
+        this.individualRepository = getRepository(IndividualUser);
+        this.companyRepository = getRepository(CompanyUser);
     }
-    
-    async create({ name, road, number, identifier, neighborhood, sex, telephone, is_employee, functionn, ability, email, password, isAdmin, id, avatar }: ICreateUsersDTO): Promise<void> {
-        const user = this.repository.create({
-            name, 
-            road, 
-            number, 
+
+    async create(data: ICreateUsersDTO): Promise<void> {
+        const {
+            id,
+            name,
+            email,
+            password,
+            telephone,
+            avatar,
+            road,
+            number,
+            neighborhood,
             identifier,
-            neighborhood, 
-            sex, 
-            telephone, 
-            is_employee, 
+            user_type,
+            sex,
             functionn,
             ability,
-            email, 
-            password,
-            isAdmin,
+            is_employee,
+            curriculum,
+            business_area,
+        } = data;
+        
+        const user = this.baseRepository.create({
             id,
-            avatar
-        }); 
+            name,
+            email,
+            password,
+            telephone,
+            avatar,
+            road,
+            number,
+            neighborhood,
+            identifier,
+            user_type: data.user_type,
+        });
 
-        await this.repository.save(user);
+        await this.baseRepository.save(user);
+
+        if (user_type === "individual") {
+            const individualUser = this.individualRepository.create({
+                id: user.id,
+                sex,
+                functionn,
+                ability,
+                is_employee,
+                curriculum,
+            });
+
+            await this.individualRepository.save(individualUser);
+        } else if (user_type === "company") {
+            const companyUser = this.companyRepository.create({
+                id: user.id,
+                business_area,
+            });
+
+            await this.companyRepository.save(companyUser);
+        } else {
+            throw new Error("Invalid user type");
+        }
     }
 
-    async findByEmail(email: string): Promise<User>{
-        const user = await this.repository.findOne({email});
+    async findByEmail(email: string): Promise<User> {
+        const user = await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .leftJoinAndSelect("user.companyData", "company")
+            .where("user.email = :email", { email })
+            .getOne();
+
+        return user ? plainToClass(User, user) : null;
+    }
+
+    async findById(id: string): Promise<User> {
+        const user = await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .leftJoinAndSelect("user.companyData", "company")
+            .where("user.id = :id", { id })
+            .getOne();
 
         return user;
     }
 
-    async findById(id: string): Promise<User>{
-        const user = await this.repository.findOne(id);
-        return user;
-    }
+    async update(user: User, profileTipeUser): Promise<void> {
+        await this.baseRepository
+            .createQueryBuilder()
+            .update('users')
+            .set({
+                road: user.road,
+                number: user.number,
+                neighborhood: user.neighborhood,
+                telephone: user.telephone,
+            })
+            .where("id = :id", { id: user.id })
+            .execute();
 
-    async update(user: User): Promise<void>{
-        await this.repository.createQueryBuilder('user')
-        .update('users')
-        .set({
-            road: user.road,
-            number: user.number,
-            neighborhood: user.neighborhood,
-            telephone: user.telephone,
-            functionn: user.functionn,
-            ability: user.ability,
-            is_employee: user.is_employee
-        })
-        .where('id = :id', { id: user.id })
-        .execute();
+        if(user.user_type === "individual"){
+            await this.individualRepository
+            .createQueryBuilder()
+            .update('individual_users')
+            .set({
+                functionn: profileTipeUser.functionn,
+                ability: profileTipeUser.ability,
+                is_employee: profileTipeUser.is_employee
+
+            })
+            .where("id = :id", { id: user.id })
+            .execute();
+        }else if(user.user_type === "company"){
+            await this.individualRepository
+            .createQueryBuilder()
+            .update('company_users')
+            .set({
+                business_area: profileTipeUser.business_area,
+            })
+            .where("id = :id", { id: user.id })
+            .execute();
+        }
     }
 }
 
-export { UsersRepository }
+export { UsersRepository };

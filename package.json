@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/csv-parse": "^1.2.2",
     "bcrypt": "^5.1.0",
+    "class-transformer": "^0.5.1",
     "cors": "^2.8.5",
     "csv-parse": "^5.3.5",
     "dayjs": "1.11.5",

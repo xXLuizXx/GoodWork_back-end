@@ -21,6 +21,7 @@ interface IResponse {
     avatar: string;
     avatarUrl: string;
     isAdmin: boolean;
+    user_type: string;
   };
   token: string;
   refreshToken: string;
@@ -82,8 +83,9 @@ class AuthenticateUserUseCase {
         name: user.name,
         email: user.email,
         avatar: user.avatar,
-        avatarUrl: user.avatarUrl(),
-        isAdmin: user.isAdmin
+        avatarUrl: user.getAvatarUrl(),
+        isAdmin: user.isAdmin,
+        user_type: user.user_type
       },
       token,
       refreshToken,

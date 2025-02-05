@@ -1,2 +1,5 @@
 node_modules
 .vscode
+tmp/avatar/
+tmp/banners/
+tmp/curriculums/

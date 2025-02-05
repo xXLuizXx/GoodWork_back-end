@@ -4,6 +4,7 @@ import { CreateJobUseCase } from "./CreateJobUseCase"
 
 class CreateJobController {
     async handle(request: Request, response: Response): Promise<Response> {
+        const {id} = request.user;
         const {
             vacancy,
             contractor,
@@ -12,11 +13,13 @@ class CreateJobController {
             workload,
             location, 
             benefits,
-            banner,
             category_id,
             user_id
         } = request.body;
+        
+        const banner = request.file.filename;
         const createJobUseCase = container.resolve(CreateJobUseCase);
+        const finalUserId = user_id || id;
 
         const job = await createJobUseCase.execute({
             vacancy,
@@ -28,7 +31,7 @@ class CreateJobController {
             benefits,
             banner,
             category_id,
-            user_id
+            user_id: finalUserId,
         });
 
         return response.status(201).json(job);

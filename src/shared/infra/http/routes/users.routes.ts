@@ -12,10 +12,11 @@ const updateUserAvatarController = new UpdateUserAvatarController;
 const uploadAvatar = multer(uploadConfig.upload("./tmp/avatar"));
 const getProfilleUser = new ProfileUserController;
 const updateDataProfileUser = new ProfileUserController;
+const uploadCurriculum = multer(uploadConfig.upload("./tmp/curriculums"));
 
-usersRoutes.post("/", createUserController.handle);
+usersRoutes.post("/", uploadCurriculum.single("curriculum"), createUserController.handle);
 usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), updateUserAvatarController.handle);
 usersRoutes.get("/profile", ensureAuthenticated, getProfilleUser.handle);
-usersRoutes.patch("/profile/updateData",  updateDataProfileUser.updateDataProfileUser);
+usersRoutes.patch("/profile/updateData", ensureAuthenticated, updateDataProfileUser.updateDataProfileUser);
 
 export { usersRoutes }

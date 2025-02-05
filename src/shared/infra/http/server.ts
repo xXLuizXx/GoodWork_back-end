@@ -29,8 +29,4 @@ app.use((err: Error, request: Request, response: Response, next: NextFunction) =
         message: `Internal server error - ${err.message}`,
     })
 });
-
-app.get("/teste",(request, response) => {
-    return response.json({menssage: "teste"})
-});
 app.listen(3333, () => console.log("Rodou----------------------"));

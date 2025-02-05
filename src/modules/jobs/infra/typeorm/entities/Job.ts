@@ -62,6 +62,12 @@ class Job {
             this.valid_vacancy = false;
         }
     }
+    bannerUrl(): string {
+        const banner = this.banner;
+    
+        return `${process.env.API_URL}/banners/${banner}`; 
+        
+    }
 }
 
 export { Job }

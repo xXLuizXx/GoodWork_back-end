@@ -1,21 +1,21 @@
-interface ICreateUsersDTO{
-
+interface ICreateUsersDTO {
+    id?: string;
     name: string;
-    road: string;
-    number: string;
-    identifier: string;
-    neighborhood: string;
-    sex: string;
-    telephone: string;
-    is_employee: string;
-    functionn: string;
-    ability: string;
     email: string;
     password: string;
-    isAdmin?: boolean;
-    id?: string;
+    telephone: string;
     avatar?: string;
-
-}
-
+    road: string;
+    number: string;
+    neighborhood: string;
+    identifier: string;
+    user_type: "individual" | "company";
+    sex?: string;
+    functionn?: string;
+    ability?: string;
+    is_employee?: boolean;
+    curriculum?: string;
+    business_area?: string;
+  }
+  
 export { ICreateUsersDTO }

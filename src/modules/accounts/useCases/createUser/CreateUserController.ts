@@ -2,42 +2,57 @@ import { Request, Response } from "express";
 import { container } from "tsyringe";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 
-class CreateUserController{
-
-    async handle(request: Request, response: Response): Promise<Response>{
-        const {name,
-            road,
-            number,
-            identifier,
-            neighborhood,
-            sex,
-            telephone,
-            is_employee,
-            functionn,
-            ability,
-            email,
-            password,
-            } = request.body;
-        
-        const createUserUseCase = container.resolve(CreateUserUseCase);
-
-        await createUserUseCase.execute({
+class CreateUserController {
+    async handle(request: Request, response: Response): Promise<Response> {
+        const {
             name,
             road,
             number,
             identifier,
             neighborhood,
-            sex,
             telephone,
+            email,
+            password,
+            user_type,
+            sex,
             is_employee,
             functionn,
             ability,
-            email,
-            password,
-        });
+            business_area,
+        } = request.body;
+        var fileCurriculum = null;
+        if (request.body.user_type === "company"){
+            fileCurriculum = null;
+        }else{
+            fileCurriculum = request.file.filename;
+        }
+        
+        const createUserUseCase = container.resolve(CreateUserUseCase);
 
-        return response.status(201).send();
+        try {
+            await createUserUseCase.execute({
+                name,
+                road,
+                number,
+                identifier,
+                neighborhood,
+                telephone,
+                email,
+                password,
+                user_type: request.body.user_type,
+                sex,
+                is_employee,
+                functionn,
+                ability,
+                curriculum: fileCurriculum,
+                business_area,
+            });
+
+            return response.status(201).send();
+        } catch (error) {
+            return response.status(400).json({ error: error.message });
+        }
     }
 }
 
-export { CreateUserController }
+export { CreateUserController };
