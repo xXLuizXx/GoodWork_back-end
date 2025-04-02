@@ -15,6 +15,6 @@ jobsRoutes.post("/", ensureAuthenticated,  uploadBanner.single("banner"), create
 jobsRoutes.get("/list", ensureAuthenticated, listJobsController.handler);
 jobsRoutes.get("/listCategories", ensureAuthenticated, listJobsController.listJobsCategories);
 jobsRoutes.get("/listVacancy", ensureAuthenticated, listJobsController.listJobsVacancy);
-jobsRoutes.get("/listVacancyNotValidated", listJobsController.listJobsVacancyNotValidated);
+jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsController.listJobsVacancyNotValidated);
 
 export { jobsRoutes }
