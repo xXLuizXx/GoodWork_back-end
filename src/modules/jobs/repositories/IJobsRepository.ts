@@ -6,6 +6,7 @@ interface IJobsRepository{
     fyndByVacancy(vacancy: string): Promise<Job>;
     list(): Promise<Job[]>;
     listByCategory(category_id: string): Promise<Job[]>;
+    findVacancysNotValidated(): Promise<number>;
 }
 
 export type { IJobsRepository }
