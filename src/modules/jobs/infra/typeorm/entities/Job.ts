@@ -52,14 +52,14 @@ class Job {
     @CreateDateColumn()
     created_at: Date;
 
-    @Column()
-    valid_vacancy: boolean;
+    @Column({ type: "boolean", nullable: true, default: null })
+    valid_vacancy: boolean | null;
 
     constructor(){
         if(!this.id){
             this.id = uuidV4();
             this.vacancy_available = true;
-            this.valid_vacancy = false;
+            this.valid_vacancy = null;
         }
     }
     bannerUrl(): string {

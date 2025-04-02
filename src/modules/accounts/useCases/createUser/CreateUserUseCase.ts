@@ -37,8 +37,6 @@ class CreateUserUseCase {
         const passwordHash = await hash(password, 8);
 
         if (user_type === "individual") {
-            console.log(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>USUÁRIO PESSOAL<<<<<<<<<<<<<<<<<<<<<<<<<");
-            console.log(user_type);
             if (!sex || !functionn || !ability) {
                 throw new AppError("Missing required fields for individual user.");
             }
@@ -61,8 +59,6 @@ class CreateUserUseCase {
             });
             
         } else if (user_type === "company") {
-            console.log(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>USUÁRIO EMPRESA<<<<<<<<<<<<<<<<<<<<<<<<<");
-            console.log(user_type);
             if (!business_area) {
                 throw new AppError("Missing required fields for company user.");
             }

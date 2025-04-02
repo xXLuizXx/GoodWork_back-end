@@ -57,7 +57,8 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                     {
                         name: "valid_vacancy",
                         type: "boolean",
-                        default: false
+                        isNullable: true,
+                        default: null
                     },
                     {
                         name: "user_id",
