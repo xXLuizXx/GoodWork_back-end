@@ -29,6 +29,12 @@ class ListJobsUseCase{
 
         return countJobsNotValidated;
     }
+
+    async executeVacancyNotValidated(): Promise<Job[]>{
+        const jobs = await this.jobsRepository.listVacancyNotValidated();
+
+        return jobs;
+    }
 }
 
 export { ListJobsUseCase }

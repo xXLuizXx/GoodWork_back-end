@@ -28,9 +28,16 @@ class ListJobsController{
         return response.json(jobsVacancy);
     }
 
-    async listJobsVacancyNotValidated(request: Request, response: Response):Promise<Response>{
+    async countJobsVacancyNotValidated(request: Request, response: Response):Promise<Response>{
         const countJobsNotValidated = container.resolve(ListJobsUseCase);
         const jobsVacancyNotValidated = await countJobsNotValidated.executeCountVacancy();
+
+        return response.json(jobsVacancyNotValidated);
+    }
+
+    async listJobsVacancyNotValidated(request: Request, response: Response):Promise<Response>{
+        const countJobsNotValidated = container.resolve(ListJobsUseCase);
+        const jobsVacancyNotValidated = await countJobsNotValidated.executeVacancyNotValidated();
 
         return response.json(jobsVacancyNotValidated);
     }
