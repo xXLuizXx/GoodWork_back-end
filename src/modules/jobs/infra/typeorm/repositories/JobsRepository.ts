@@ -129,6 +129,26 @@ class JobsRepository implements IJobsRepository{
 
             return jobs;
     }
+
+    async findById(id: string): Promise<Job> {
+        const job = await this.repository
+            .createQueryBuilder("job")
+            .select('job')
+            .where("id = :id", { id })
+            .getOne();
+
+        return job;
+    }
+
+    async aproveJob(id: string, valid: boolean): Promise<boolean> {
+        const result = await this.repository.createQueryBuilder("job")
+            .update('jobs')
+            .set({ valid_vacancy: valid })
+            .where("id = :id", { id })
+            .execute();
+
+        return result.affected > 0;
+    }
     
 }
 

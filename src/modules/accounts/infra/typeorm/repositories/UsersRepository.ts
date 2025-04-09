@@ -124,7 +124,7 @@ class UsersRepository implements IUsersRepository {
             })
             .where("id = :id", { id: user.id })
             .execute();
-        }else if(user.user_type === "company"){
+        } else if(user.user_type === "company"){
             await this.individualRepository
             .createQueryBuilder()
             .update('company_users')

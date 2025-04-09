@@ -8,6 +8,7 @@ interface IJobsRepository{
     listByCategory(category_id: string): Promise<Job[]>;
     findVacancysNotValidated(): Promise<number>;
     listVacancyNotValidated(): Promise<Job[]>;
+    aproveJob(job: Job, valid: boolean):  Promise<void>;
 }
 
 export type { IJobsRepository }
