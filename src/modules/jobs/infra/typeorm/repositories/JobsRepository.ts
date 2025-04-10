@@ -9,7 +9,7 @@ class JobsRepository implements IJobsRepository{
     constructor(){
         this.repository = getRepository(Job);
     }
-    async create({vacancy, contractor, description_vacancy, requirements, workload, location, benefits, banner, category_id, user_id }: ICreateJobsDTO): Promise<Job> {
+    async create({vacancy, contractor, description_vacancy, requirements, workload, location, benefits, banner, category_id, user_id, amount_vacancy }: ICreateJobsDTO): Promise<Job> {
         const job = this.repository.create({
             vacancy,
             contractor,
@@ -20,7 +20,8 @@ class JobsRepository implements IJobsRepository{
             benefits,
             banner,
             category_id,
-            user_id
+            user_id,
+            amount_vacancy
         });
         
         await this.repository.save(job);
@@ -41,6 +42,7 @@ class JobsRepository implements IJobsRepository{
                 "job.benefits",
                 "job.banner",
                 "job.valid_vacancy",
+                "job.amount_vacancy",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -64,6 +66,7 @@ class JobsRepository implements IJobsRepository{
                 "job.benefits",
                 "job.banner",
                 "job.valid_vacancy",
+                "job.amount_vacancy",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -88,6 +91,7 @@ class JobsRepository implements IJobsRepository{
                 "job.benefits",
                 "job.banner",
                 "job.valid_vacancy",
+                "job.amount_vacancy",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -121,6 +125,7 @@ class JobsRepository implements IJobsRepository{
                 "job.benefits",
                 "job.banner",
                 "job.valid_vacancy",
+                "job.amount_vacancy",
                 "job.category_id",
                 "job.user_id",
                 "user.name"

@@ -9,6 +9,7 @@ interface ICreateJobsDTO{
     banner: string;
     category_id: string;
     user_id: string;
+    amount_vacancy: number;
 }
 
 export { ICreateJobsDTO }

@@ -55,6 +55,9 @@ class Job {
     @Column({ type: "boolean", nullable: true, default: null })
     valid_vacancy: boolean | null;
 
+    @Column()
+    amount_vacancy: number;
+
     constructor(){
         if(!this.id){
             this.id = uuidV4();
