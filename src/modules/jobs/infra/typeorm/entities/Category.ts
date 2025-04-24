@@ -12,6 +12,9 @@ class Category {
     @Column()
     description: string;
     
+    @Column({ type: "boolean", nullable: true, default: null })
+    valid_category: boolean | null;
+
     @CreateDateColumn()
     created_at: Date;
 

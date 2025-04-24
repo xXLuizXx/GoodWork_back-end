@@ -58,7 +58,7 @@ class AuthenticateUserUseCase {
       throw new AppError("E-mail ou senha incorretos!", 401);
     }
 
-    const token = sign({ accessLevel: user.isAdmin }, secretToken, {
+    const token = sign({ accessLevel: user.user_type, isAdmin: user.isAdmin}, secretToken, {
       subject: user.id,
       expiresIn: expiresInToken,
     });

@@ -21,6 +21,12 @@ export class CreateCategories1678409948843 implements MigrationInterface {
                         type: "varchar"
                     },
                     {
+                        name: "valid_category",
+                        type: "boolean",
+                        isNullable: true,
+                        default: null
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()"

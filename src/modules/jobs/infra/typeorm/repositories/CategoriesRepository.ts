@@ -1,7 +1,6 @@
 import { Category } from "../entities/Category";
 import { ICategoriesRepository, ICreatedCategoryDTO } from "../../../repositories/ICategoriesRepository";
 import { getRepository, Repository } from "typeorm";
-//DTO -> Data Transfer Object
 
 class CategoriesRepository implements ICategoriesRepository {
     private repository: Repository<Category>;
