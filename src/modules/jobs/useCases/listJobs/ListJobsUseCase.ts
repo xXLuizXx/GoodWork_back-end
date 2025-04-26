@@ -35,6 +35,12 @@ class ListJobsUseCase{
 
         return jobs;
     }
+
+    async executeJobsCompany(user_id: string): Promise<Job[]>{
+        const jobs = await this.jobsRepository.allJobsCompany(user_id);
+
+        return jobs;
+    }
 }
 
 export { ListJobsUseCase }

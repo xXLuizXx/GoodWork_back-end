@@ -19,7 +19,14 @@ class CategoriesRepository implements ICategoriesRepository {
     }
 
     async list(): Promise<Category[]>{
-        const categories = await this.repository.find();
+        const categories = await this.repository.createQueryBuilder('category')
+        .select([
+            'category.id',
+            'category.name',
+            'category.description'
+        ])
+    .where("category.valid_category = :valid", { valid: true })
+    .getMany();
 
         return categories;
     }

@@ -154,6 +154,16 @@ class JobsRepository implements IJobsRepository{
 
         return result.affected > 0;
     }
+
+    async allJobsCompany(id: string): Promise<Job[]>{
+        const jobs = await this.repository.createQueryBuilder("job").
+        select("job").
+        where("valid_vacancy = true")
+        .andWhere('user_id = :id', {id})
+        .getMany();
+
+        return jobs;
+    }
     
 }
 

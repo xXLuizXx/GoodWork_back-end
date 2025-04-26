@@ -6,6 +6,7 @@ import { ListJobsController } from "../../../../modules/jobs/useCases/listJobs/L
 import { AproveJobsController } from "../../../../modules/jobs/useCases/aproveJobs/AproveJobsController";
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
+import { ensureUserCompany } from "../middlewares/ensureUserCompany";
 
 const jobsRoutes = Router();
 const createJobsController = new CreateJobController;
@@ -20,4 +21,5 @@ jobsRoutes.get("/listVacancy", ensureAuthenticated, listJobsController.listJobsV
 jobsRoutes.get("/countVacancyNotValidated", ensureAuthenticated, listJobsController.countJobsVacancyNotValidated);
 jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsController.listJobsVacancyNotValidated);
 jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobController.aproveJob);
+jobsRoutes.get("/listJobsCompany", listJobsController.getAllJobsCompany);
 export { jobsRoutes }

@@ -41,6 +41,14 @@ class ListJobsController{
 
         return response.json(jobsVacancyNotValidated);
     }
+
+    async getAllJobsCompany(request: Request, reponse: Response): Promise<Response>{
+        const { id } = request.query;
+        const getJobCompany = container.resolve(ListJobsUseCase);
+        const allJobsCompany = await getJobCompany.executeJobsCompany(id);
+
+        return reponse.json(allJobsCompany);
+    }
 }
 
 export { ListJobsController }
