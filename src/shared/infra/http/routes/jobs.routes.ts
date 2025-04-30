@@ -21,5 +21,7 @@ jobsRoutes.get("/listVacancy", ensureAuthenticated, listJobsController.listJobsV
 jobsRoutes.get("/countVacancyNotValidated", ensureAuthenticated, listJobsController.countJobsVacancyNotValidated);
 jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsController.listJobsVacancyNotValidated);
 jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobController.aproveJob);
-jobsRoutes.get("/listJobsCompany", listJobsController.getAllJobsCompany);
+jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJobsController.getAllJobsCompany);
+jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
+jobsRoutes.patch("/updateJob", listJobsController.updateJob);
 export { jobsRoutes }

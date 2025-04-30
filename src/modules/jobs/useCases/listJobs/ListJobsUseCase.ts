@@ -2,6 +2,20 @@ import { JobsRepository } from "../../infra/typeorm/repositories/JobsRepository"
 import {inject, injectable} from "tsyringe";
 import {Job} from "../../infra/typeorm/entities/Job";
 
+interface IJob {
+    id: string;
+    vacancy: string;
+    contractor: string;
+    description_vacancy: string;
+    requirements: string;
+    workload: string;
+    location: string;
+    category_id: string;
+    benefits: string;
+    vacancy_available: boolean;
+    amount_vacancy: number;
+    //closing_date: string;
+}
 @injectable()
 class ListJobsUseCase{
     constructor(@inject("JobsRepository" ) private jobsRepository: JobsRepository) {}
@@ -40,6 +54,31 @@ class ListJobsUseCase{
         const jobs = await this.jobsRepository.allJobsCompany(user_id);
 
         return jobs;
+    }
+
+    async executeJob(id: string): Promise<Job>{
+        const job = await this.jobsRepository.getJob(id);
+
+        return job;
+    }
+
+    async executeUpdateJob(jobData: IJob): Promise<Job>{
+        const job = new Job()
+ 
+        job.vacancy = jobData.vacancy;
+        job.contractor = jobData.contractor;
+        job.description_vacancy = jobData.description_vacancy;
+        job.requirements = jobData.requirements;
+        job.workload = jobData.workload;
+        job.location =  jobData.location;
+        job.category_id = jobData.category_id;
+        job.benefits = jobData.benefits;
+        job.vacancy_available = jobData.vacancy_available;
+        job.amount_vacancy = jobData.amount_vacancy;
+
+        await this.jobsRepository.updateJob(jobData.id, job);
+
+        return await this.jobsRepository.findById(jobData.id);
     }
 }
 

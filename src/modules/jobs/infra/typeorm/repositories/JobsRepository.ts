@@ -156,15 +156,79 @@ class JobsRepository implements IJobsRepository{
     }
 
     async allJobsCompany(id: string): Promise<Job[]>{
-        const jobs = await this.repository.createQueryBuilder("job").
-        select("job").
-        where("valid_vacancy = true")
-        .andWhere('user_id = :id', {id})
-        .getMany();
+        const jobs = await this.repository.createQueryBuilder("job")
+            .leftJoinAndSelect('job.user', 'user')
+            .select([
+                "job.id",
+                "job.vacancy",
+                "job.contractor",
+                "job.description_vacancy",
+                "job.requirements",
+                "job.workload",
+                "job.location",
+                "job.benefits",
+                "job.banner",
+                "job.valid_vacancy",
+                "job.amount_vacancy",
+                "job.category_id",
+                "job.user_id",
+                "user.name",
+                "job.vacancy_available",
+                "job.created_at"
+            ])
+            .where('job.user_id = :id', { id }).andWhere("job.valid_vacancy = true")
+            .getMany();
 
         return jobs;
     }
-    
+
+    async getJob(id: string): Promise<Job>{
+        const job = await this.repository.createQueryBuilder("job")
+        .leftJoinAndSelect('job.user', 'user')
+            .select([
+                "job.id",
+                "job.vacancy",
+                "job.contractor",
+                "job.description_vacancy",
+                "job.requirements",
+                "job.workload",
+                "job.location",
+                "job.benefits",
+                "job.banner",
+                "job.valid_vacancy",
+                "job.amount_vacancy",
+                "job.category_id",
+                "job.user_id",
+                "user.name",
+                "job.vacancy_available",
+                "job.created_at"
+            ])
+            .where('job.id = :id', { id }).andWhere("job.valid_vacancy = true")
+            .getOne();
+
+            return job;
+    }
+
+    async updateJob(id: string, job: Job): Promise<void> {
+        await this.repository
+            .createQueryBuilder()
+            .update('jobs')
+            .set({
+                vacancy: job.vacancy,
+                contractor: job.contractor,
+                description_vacancy: job.description_vacancy,
+                requirements: job.requirements,
+                workload: job.workload,
+                location: job.location,
+                benefits: job.benefits,
+                //banner: job.banner,
+                amount_vacancy: job.amount_vacancy,
+                category_id: job.category_id,
+                vacancy_available: job.vacancy_available
+            })
+            .where("id = :id", { id })
+            .execute();
+    }
 }
 
 export { JobsRepository }
