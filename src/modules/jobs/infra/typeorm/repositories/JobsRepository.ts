@@ -229,6 +229,15 @@ class JobsRepository implements IJobsRepository{
             .where("id = :id", { id })
             .execute();
     }
+
+    async closeOrOpen(id: string, valid: boolean): Promise<void>{
+        await this.repository
+            .createQueryBuilder()
+            .update("jobs")
+            .set({vacancy_available: valid})
+            .where("id = :id",{id})
+            .execute();
+    }
 }
 
 export { JobsRepository }

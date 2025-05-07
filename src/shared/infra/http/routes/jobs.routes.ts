@@ -7,10 +7,12 @@ import { AproveJobsController } from "../../../../modules/jobs/useCases/aproveJo
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
 import { ensureUserCompany } from "../middlewares/ensureUserCompany";
+import { CloseOrOpenVacancyController } from "../../../../modules/jobs/useCases/closeVacancy/CloseOrOpenVacancyController";
 
 const jobsRoutes = Router();
 const createJobsController = new CreateJobController;
 const listJobsController = new ListJobsController;
+const closeOrOpenVacancyController = new CloseOrOpenVacancyController;
 const uploadBanner = multer(uploadConfig.upload("./tmp/banners"));
 const aproveJobController = new AproveJobsController;
 
@@ -23,5 +25,6 @@ jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsControll
 jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobController.aproveJob);
 jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJobsController.getAllJobsCompany);
 jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
-jobsRoutes.patch("/updateJob", listJobsController.updateJob);
+jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, listJobsController.updateJob);
+jobsRoutes.patch("/updateStatusJob",  closeOrOpenVacancyController.closeOrOpenVacancy);
 export { jobsRoutes }
