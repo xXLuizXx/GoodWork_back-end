@@ -60,7 +60,7 @@ class ListJobsController{
 
     async updateJob(request: Request, response: Response): Promise<Response>{
         const listJobsUseCase = container.resolve(ListJobsUseCase);
-        const { id, vacancy, contractor, description_vacancy, requirements, workload, location, category_id, benefits, vacancy_available, amount_vacancy} = request.body;
+        const { id, vacancy, contractor, description_vacancy, requirements, workload, location, category_id, benefits, vacancy_available, amount_vacancy, closing_date} = request.body;
 
         try{
             const updateJob = await listJobsUseCase.executeUpdateJob({
@@ -74,7 +74,8 @@ class ListJobsController{
                 category_id, 
                 benefits, 
                 vacancy_available, 
-                amount_vacancy
+                amount_vacancy,
+                closing_date,
             });
 
             return response.status(200).json(updateJob);

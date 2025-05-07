@@ -65,6 +65,10 @@ export class CreateJobs1698369893442 implements MigrationInterface {
                         type: "integer",
                     },
                     {
+                        name: "closing_date",
+                        type: "timestamp"
+                    },
+                    {
                         name: "user_id",
                         type: "uuid",
                         isNullable: true

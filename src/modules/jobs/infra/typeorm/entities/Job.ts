@@ -58,6 +58,9 @@ class Job {
     @Column()
     amount_vacancy: number;
 
+    @Column()
+    closing_date: Date;
+
     constructor(){
         if(!this.id){
             this.id = uuidV4();

@@ -16,6 +16,7 @@ class CreateJobController {
             category_id,
             user_id,
             amount_vacancy, 
+            closing_date,
         } = request.body;
         
         const banner = request.file.filename;
@@ -34,6 +35,7 @@ class CreateJobController {
             category_id,
             user_id: finalUserId,
             amount_vacancy,
+            closing_date,
         });
 
         return response.status(201).json(job);

@@ -15,6 +15,7 @@ interface IRequest {
     category_id: string;
     user_id: string;
     amount_vacancy: number
+    closing_date: Date;
 }
 
 
@@ -37,7 +38,8 @@ class CreateJobUseCase{
         banner,
         category_id,
         user_id,
-        amount_vacancy
+        amount_vacancy,
+        closing_date
     }: IRequest): Promise<Job> {
         const job = await this.jobsRepository.create({
             vacancy,
@@ -50,7 +52,8 @@ class CreateJobUseCase{
             banner,
             category_id,
             user_id,
-            amount_vacancy
+            amount_vacancy,
+            closing_date
         });
 
         return job;

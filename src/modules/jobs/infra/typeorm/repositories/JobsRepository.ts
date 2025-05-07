@@ -9,7 +9,7 @@ class JobsRepository implements IJobsRepository{
     constructor(){
         this.repository = getRepository(Job);
     }
-    async create({vacancy, contractor, description_vacancy, requirements, workload, location, benefits, banner, category_id, user_id, amount_vacancy }: ICreateJobsDTO): Promise<Job> {
+    async create({vacancy, contractor, description_vacancy, requirements, workload, location, benefits, banner, category_id, user_id, amount_vacancy, closing_date }: ICreateJobsDTO): Promise<Job> {
         const job = this.repository.create({
             vacancy,
             contractor,
@@ -21,7 +21,8 @@ class JobsRepository implements IJobsRepository{
             banner,
             category_id,
             user_id,
-            amount_vacancy
+            amount_vacancy,
+            closing_date
         });
         
         await this.repository.save(job);
@@ -43,6 +44,7 @@ class JobsRepository implements IJobsRepository{
                 "job.banner",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -65,8 +67,10 @@ class JobsRepository implements IJobsRepository{
                 "job.location",
                 "job.benefits",
                 "job.banner",
+                "job.vacancy_available",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -90,8 +94,10 @@ class JobsRepository implements IJobsRepository{
                 "job.location",
                 "job.benefits",
                 "job.banner",
+                "job.vacancy_available",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -126,6 +132,7 @@ class JobsRepository implements IJobsRepository{
                 "job.banner",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name"
@@ -170,6 +177,7 @@ class JobsRepository implements IJobsRepository{
                 "job.banner",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name",
@@ -197,6 +205,7 @@ class JobsRepository implements IJobsRepository{
                 "job.banner",
                 "job.valid_vacancy",
                 "job.amount_vacancy",
+                "job.closing_date",
                 "job.category_id",
                 "job.user_id",
                 "user.name",
@@ -223,6 +232,7 @@ class JobsRepository implements IJobsRepository{
                 benefits: job.benefits,
                 //banner: job.banner,
                 amount_vacancy: job.amount_vacancy,
+                closing_date: job.closing_date,
                 category_id: job.category_id,
                 vacancy_available: job.vacancy_available
             })
