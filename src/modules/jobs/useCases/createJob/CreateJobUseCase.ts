@@ -22,10 +22,7 @@ interface IRequest {
 @injectable()
 class CreateJobUseCase{
 
-    constructor(
-        @inject("JobsRepository")
-        private jobsRepository: IJobsRepository
-    ) {}
+    constructor(@inject("JobsRepository") private jobsRepository: IJobsRepository) {}
 
     async execute({ 
         vacancy,
