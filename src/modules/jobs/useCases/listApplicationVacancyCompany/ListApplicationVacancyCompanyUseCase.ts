@@ -16,8 +16,6 @@ class ListApplicationVacancyCompanyUseCase{
     constructor(@inject("ApplicationRepository") private applicationRepository: IApplicationRepository){}
 
     async listAllApplicationJob(id: string): Promise<Application[]>{
-        console.log(">>>>>>>>>>>>>>>>ENTROU NO USE CASE<<<<<<<<<<<<<<<<<<<<");
-        console.log(id);
         const applications = this.applicationRepository.listApplications(id);
         
         return await applications;

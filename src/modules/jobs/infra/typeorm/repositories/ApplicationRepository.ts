@@ -34,7 +34,8 @@ class ApplicationRepository implements IApplicationRepository {
                 "user.avatar",
                 "user.email",
                 "user.telephone",
-                "individualData.functionn"
+                "individualData.functionn",
+                "application.created_at"
             ])
             .where("application.job_id = :job_id", { job_id })
             .getMany();
