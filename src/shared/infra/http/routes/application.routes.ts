@@ -4,12 +4,15 @@ import { ensureAdmin } from "../../../../shared/infra/http/middlewares/ensureAdm
 import { ensureUserCompany } from "../middlewares/ensureUserCompany";
 import { CreateApplicationJobController } from "../../../../modules/jobs/useCases/createApplication/CreateApplicationJobController";
 import { ListApplicationVacancyCompanyController } from "../../../../modules/jobs/useCases/listApplicationVacancyCompany/ListApplicationVacancyCompanyController";
+import { AproveApplicationsVacancyController } from "../../../../modules/jobs/useCases/aproveApplications/AproveApplicationsVacancyController";
 
 const applicationRoutes = Router();
 const createAppliationJobController = new CreateApplicationJobController;
 const listApplicationVacancyCompanyController = new ListApplicationVacancyCompanyController;
+const aproveApplicationsVacancyController = new AproveApplicationsVacancyController;
 
-applicationRoutes.post("/", createAppliationJobController.createApplication);
+applicationRoutes.post("/", ensureAuthenticated, createAppliationJobController.createApplication);
 applicationRoutes.get("/getApplications", listApplicationVacancyCompanyController.getAllApplicationsJob);
+applicationRoutes.patch("/finalizeApplications", aproveApplicationsVacancyController.aproveAppliations);
 
 export { applicationRoutes }

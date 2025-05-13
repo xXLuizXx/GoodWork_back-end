@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, ManyToOne, JoinColumn } from "typeorm";
 import { v4 as uuidV4 } from "uuid";
 import { User } from "../../../../accounts/infra/typeorm/entities/User"; // Importe a entidade User
+import { Job } from "../entities/Job";
 
 @Entity("applications")
 class Application {
@@ -11,8 +12,9 @@ class Application {
     @JoinColumn({ name: "user_id" })
     user: User;
 
-    @Column({ name: "job_id" })
-    job_id: string;
+    @ManyToOne(() => Job)
+    @JoinColumn({ name: "job_id" })
+    job: Job;
 
     @Column()
     curriculum_user: string;

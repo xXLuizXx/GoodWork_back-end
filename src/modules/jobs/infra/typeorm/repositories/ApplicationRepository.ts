@@ -2,6 +2,8 @@ import { Application } from "../entities/Application";
 import { IApplicationRepository } from "../../../repositories/IApplicationRepository";
 import { ICreateApplicationDTO } from "../../../../../modules/jobs/dtos/ICreateApplicationDTO";
 import { getRepository, Repository } from "typeorm";
+import { application } from "express";
+import { IApproveApplicationDTO } from "../../../../../modules/jobs/dtos/IAprovedApplicationsDTO";
 
 class ApplicationRepository implements IApplicationRepository {
     private repository: Repository<Application>;
@@ -10,10 +12,10 @@ class ApplicationRepository implements IApplicationRepository {
         this.repository = getRepository(Application);
     }
     
-    async create({ user, job_id, curriculum_user }: ICreateApplicationDTO): Promise<void> {
+    async create({ user, job, curriculum_user }: ICreateApplicationDTO): Promise<void> {
         const application = this.repository.create({
           user,
-          job_id,
+          job,
           curriculum_user
         });
       
@@ -24,6 +26,7 @@ class ApplicationRepository implements IApplicationRepository {
         const applications = await this.repository.createQueryBuilder("application")
             .leftJoinAndSelect("application.user", "user")
             .leftJoinAndSelect("user.individualData", "individualData")
+            .leftJoinAndSelect("application.job", "job")
             .select([
                 "application.id",
                 "application.user",
@@ -35,6 +38,7 @@ class ApplicationRepository implements IApplicationRepository {
                 "user.email",
                 "user.telephone",
                 "individualData.functionn",
+                "job.amount_vacancy",
                 "application.created_at"
             ])
             .where("application.job_id = :job_id", { job_id })
@@ -42,6 +46,16 @@ class ApplicationRepository implements IApplicationRepository {
     
         return applications;
     }
+
+    async aproveApplication(id: string, data: IApproveApplicationDTO): Promise<void> {
+        await this.repository
+            .createQueryBuilder()
+            .update("applications")
+            .set({ application_approved: data.application_approved })
+            .where("id = :id", { id })
+            .execute();
+    }
+    
 }
 
 export { ApplicationRepository }
