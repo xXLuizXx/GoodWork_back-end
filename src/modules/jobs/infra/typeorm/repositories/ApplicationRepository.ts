@@ -39,9 +39,11 @@ class ApplicationRepository implements IApplicationRepository {
                 "user.telephone",
                 "individualData.functionn",
                 "job.amount_vacancy",
+                "job.vacancy_available",
                 "application.created_at"
             ])
             .where("application.job_id = :job_id", { job_id })
+            //.andWhere("application.application_approved IS NULL")
             .getMany();
     
         return applications;
