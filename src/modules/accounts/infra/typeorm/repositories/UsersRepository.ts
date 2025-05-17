@@ -1,10 +1,11 @@
-import { getRepository, Repository } from "typeorm";
+import { Brackets, getRepository, Repository } from "typeorm";
 import { ICreateUsersDTO } from "../../../dtos/ICreateUserDTO";
 import { User } from "../entities/User";
 import { IndividualUser } from "../entities/IndividualUser";
 import { CompanyUser } from "../entities/CompanyUser";
 import { IUsersRepository } from "../../../repositories/IUsersRepository";
 import { plainToClass } from "class-transformer";
+import { IDataUsersDTO } from "../../../dtos/IDataUsersDTO";
 
 class UsersRepository implements IUsersRepository {
     private baseRepository: Repository<User>;
@@ -134,6 +135,65 @@ class UsersRepository implements IUsersRepository {
             .where("id = :id", { id: user.id })
             .execute();
         }
+    }
+
+    async listAllUsers(id: string): Promise<IDataUsersDTO[]> {
+        return await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .leftJoinAndSelect("user.companyData", "company")
+            .select([
+                'user.id',
+                'user.name',
+                'user.email',
+                'user.telephone',
+                'user.avatar',
+                'user.road',
+                'user.number',
+                'user.neighborhood',
+                'user.user_type',
+                'individual.functionn',
+                'individual.ability',
+                'individual.is_employee',
+                'individual.curriculum',
+                'company.business_area'
+            ])
+            .where("user.id != :id", { id: id }).
+            andWhere("user.isAdmin IS FALSE")
+            .getMany();
+    }
+
+    async listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]> {
+        return await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .leftJoinAndSelect("user.companyData", "company")
+            .select([
+                'user.id',
+                'user.name',
+                'user.email',
+                'user.telephone',
+                'user.avatar',
+                'user.road',
+                'user.number',
+                'user.neighborhood',
+                'user.user_type',
+                'individual.functionn',
+                'individual.ability',
+                'individual.is_employee',
+                'individual.curriculum',
+                'company.business_area'
+            ])
+            .where("user.id != :id", { id })
+            .andWhere("user.isAdmin IS FALSE")
+            .andWhere(
+                new Brackets(qb => {
+                    qb.where("user.name LIKE :search", { search: `%${search}%` })
+                      .orWhere("individual.functionn LIKE :search", { search: `%${search}%` })
+                      .orWhere("individual.ability LIKE :search", { search: `%${search}%` });
+                })
+            )
+            .getMany();
     }
 }
 

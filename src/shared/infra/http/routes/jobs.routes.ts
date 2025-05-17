@@ -26,5 +26,5 @@ jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobContro
 jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJobsController.getAllJobsCompany);
 jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
 jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, listJobsController.updateJob);
-jobsRoutes.patch("/updateStatusJob",  closeOrOpenVacancyController.closeOrOpenVacancy);
+jobsRoutes.patch("/updateStatusJob",ensureAuthenticated, ensureAuthenticated, closeOrOpenVacancyController.closeOrOpenVacancy);
 export { jobsRoutes }

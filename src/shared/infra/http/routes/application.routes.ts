@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { ensureAuthenticated } from "../../../../shared/infra/http/middlewares/ensureAuthenticated";
-import { ensureAdmin } from "../../../../shared/infra/http/middlewares/ensureAdmin";
 import { ensureUserCompany } from "../middlewares/ensureUserCompany";
 import { CreateApplicationJobController } from "../../../../modules/jobs/useCases/createApplication/CreateApplicationJobController";
 import { ListApplicationVacancyCompanyController } from "../../../../modules/jobs/useCases/listApplicationVacancyCompany/ListApplicationVacancyCompanyController";
@@ -12,7 +11,7 @@ const listApplicationVacancyCompanyController = new ListApplicationVacancyCompan
 const aproveApplicationsVacancyController = new AproveApplicationsVacancyController;
 
 applicationRoutes.post("/", ensureAuthenticated, createAppliationJobController.createApplication);
-applicationRoutes.get("/getApplications", listApplicationVacancyCompanyController.getAllApplicationsJob);
-applicationRoutes.patch("/finalizeApplications", aproveApplicationsVacancyController.aproveAppliations);
+applicationRoutes.get("/getApplications", ensureAuthenticated, ensureUserCompany, listApplicationVacancyCompanyController.getAllApplicationsJob);
+applicationRoutes.patch("/finalizeApplications", ensureAuthenticated, ensureUserCompany, aproveApplicationsVacancyController.aproveAppliations);
 
 export { applicationRoutes }

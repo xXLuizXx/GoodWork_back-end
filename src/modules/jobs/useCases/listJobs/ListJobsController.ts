@@ -58,12 +58,29 @@ class ListJobsController{
         return response.json(job);
     }
 
-    async updateJob(request: Request, response: Response): Promise<Response>{
+    async updateJob(request: Request, response: Response): Promise<Response> {
         const listJobsUseCase = container.resolve(ListJobsUseCase);
-        const { id, vacancy, contractor, description_vacancy, requirements, workload, location, category_id, benefits, vacancy_available, amount_vacancy, closing_date} = request.body;
+        const { 
+            id, 
+            vacancy, 
+            contractor, 
+            description_vacancy, 
+            requirements, 
+            workload, 
+            location, 
+            category_id, 
+            benefits, 
+            vacancy_available, 
+            amount_vacancy, 
+            closing_date,
+            updated_at 
+        } = request.body;
+    
+        try {
+            const updatedAtDate = parseBrazilianDate(updated_at);
+            const closingDate = new Date(closing_date);
 
-        try{
-            const updateJob = await listJobsUseCase.executeUpdateJob({
+            const updateData = {
                 id,
                 vacancy,
                 contractor, 
@@ -73,17 +90,33 @@ class ListJobsController{
                 location, 
                 category_id, 
                 benefits, 
-                vacancy_available, 
+                vacancy_available,
                 amount_vacancy,
                 closing_date,
-            });
+                updated_at: updatedAtDate.toISOString()
+            };
 
+            if (closingDate > updatedAtDate && vacancy_available === false) {
+                updateData.vacancy_available = true;
+            }
+            
+            const updateJob = await listJobsUseCase.executeUpdateJob(updateData);
+    
             return response.status(200).json(updateJob);
-        } catch(error){
-            return response.status(400).json({ message: error.message });
+        } catch(error) {
+            return response.status(400).json({ 
+                message: error instanceof Error ? error.message : 'Erro desconhecido'
+            });
         }
-        
     }
+}
+
+export function parseBrazilianDate(dateString: string): Date {
+    const [datePart, timePart] = dateString.split(', ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    const [hours, minutes, seconds] = timePart.split(':').map(Number);
+    
+    return new Date(year, month - 1, day, hours, minutes, seconds);
 }
 
 export { ListJobsController }
