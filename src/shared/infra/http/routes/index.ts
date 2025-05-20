@@ -5,6 +5,7 @@ import { usersRoutes } from "./users.routes";
 import { authenticateRoutes } from "./authenticate.routes";
 import { jobsRoutes } from "./jobs.routes";
 import { applicationRoutes } from "./application.routes";
+import { sendMailRoutes } from "./sendMail.routes";
 
 const router = Router();
 
@@ -13,6 +14,7 @@ router.use("/categories", categoriesRoutes);
 router.use("/specifications", specificationsRoutes);
 router.use("/jobs", jobsRoutes);
 router.use("/application", applicationRoutes);
+router.use("/mail", sendMailRoutes);
 router.use(authenticateRoutes);
 
 export { router }
