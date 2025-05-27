@@ -16,6 +16,8 @@ const closeOrOpenVacancyController = new CloseOrOpenVacancyController;
 const uploadBanner = multer(uploadConfig.upload("./tmp/banners"));
 const aproveJobController = new AproveJobsController;
 
+
+
 jobsRoutes.post("/", ensureAuthenticated,  uploadBanner.single("banner"), createJobsController.handle);
 jobsRoutes.get("/list", ensureAuthenticated, listJobsController.handler);
 jobsRoutes.get("/listCategories", ensureAuthenticated, listJobsController.listJobsCategories);
@@ -25,6 +27,6 @@ jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsControll
 jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobController.aproveJob);
 jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJobsController.getAllJobsCompany);
 jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
-jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, listJobsController.updateJob);
+jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, uploadBanner.single("banner"), listJobsController.updateJob);
 jobsRoutes.patch("/updateStatusJob",ensureAuthenticated, ensureAuthenticated, closeOrOpenVacancyController.closeOrOpenVacancy);
 export { jobsRoutes }

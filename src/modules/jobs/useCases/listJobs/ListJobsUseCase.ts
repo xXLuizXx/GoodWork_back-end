@@ -15,6 +15,7 @@ interface IJob {
     vacancy_available: boolean;
     amount_vacancy: number;
     closing_date: Date;
+    banner: string;
 }
 @injectable()
 class ListJobsUseCase{
@@ -76,7 +77,8 @@ class ListJobsUseCase{
         job.vacancy_available = jobData.vacancy_available;
         job.amount_vacancy = jobData.amount_vacancy;
         job.closing_date = jobData.closing_date;
-        
+        job.banner = jobData.banner;
+
         await this.jobsRepository.updateJob(jobData.id, job);
 
         return await this.jobsRepository.findById(jobData.id);

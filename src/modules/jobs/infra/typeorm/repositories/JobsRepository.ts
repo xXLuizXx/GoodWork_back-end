@@ -230,9 +230,9 @@ class JobsRepository implements IJobsRepository{
                 workload: job.workload,
                 location: job.location,
                 benefits: job.benefits,
-                //banner: job.banner,
+                banner: job.banner,
                 amount_vacancy: job.amount_vacancy,
-                closing_date: job.closing_date,
+                closing_date: () => `TO_TIMESTAMP('${job.closing_date}', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
                 category_id: job.category_id,
                 vacancy_available: job.vacancy_available
             })

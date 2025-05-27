@@ -60,8 +60,9 @@ class ListJobsController{
 
     async updateJob(request: Request, response: Response): Promise<Response> {
         const listJobsUseCase = container.resolve(ListJobsUseCase);
+        
+        const id = request.body.job_id;
         const { 
-            id, 
             vacancy, 
             contractor, 
             description_vacancy, 
@@ -69,19 +70,21 @@ class ListJobsController{
             workload, 
             location, 
             category_id, 
-            benefits, 
+            benefits,
             vacancy_available, 
             amount_vacancy, 
             closing_date,
             updated_at 
         } = request.body;
-    
+
+        const banner = request.file?.filename ? request.file.filename : request.body.banner;
+
         try {
-            const updatedAtDate = parseBrazilianDate(updated_at);
+            const updatedAtDate = new Date(updated_at);
             const closingDate = new Date(closing_date);
 
             const updateData = {
-                id,
+                id: id,
                 vacancy,
                 contractor, 
                 description_vacancy, 
@@ -90,18 +93,19 @@ class ListJobsController{
                 location, 
                 category_id, 
                 benefits, 
-                vacancy_available,
+                vacancy_available: vacancy_available === 'true',
                 amount_vacancy,
                 closing_date,
-                updated_at: updatedAtDate.toISOString()
+                updated_at: updatedAtDate.toISOString(),
+                banner: banner
             };
 
-            if (closingDate > updatedAtDate && vacancy_available === false) {
+            if (closingDate > updatedAtDate && updateData.vacancy_available === false) {
                 updateData.vacancy_available = true;
             }
-            
+
             const updateJob = await listJobsUseCase.executeUpdateJob(updateData);
-    
+
             return response.status(200).json(updateJob);
         } catch(error) {
             return response.status(400).json({ 
@@ -111,12 +115,5 @@ class ListJobsController{
     }
 }
 
-export function parseBrazilianDate(dateString: string): Date {
-    const [datePart, timePart] = dateString.split(', ');
-    const [day, month, year] = datePart.split('/').map(Number);
-    const [hours, minutes, seconds] = timePart.split(':').map(Number);
-    
-    return new Date(year, month - 1, day, hours, minutes, seconds);
-}
 
 export { ListJobsController }
