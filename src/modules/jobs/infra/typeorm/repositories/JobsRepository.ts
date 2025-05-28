@@ -47,7 +47,8 @@ class JobsRepository implements IJobsRepository{
                 "job.closing_date",
                 "job.category_id",
                 "job.user_id",
-                "user.name"
+                "user.name",
+                "user.avatar"
             ]).where('job.valid_vacancy = true')
             .getMany();
 
@@ -73,7 +74,8 @@ class JobsRepository implements IJobsRepository{
                 "job.closing_date",
                 "job.category_id",
                 "job.user_id",
-                "user.name"
+                "user.name",
+                "user.avatar"
             ])
             .where('job.category_id = :category_id', { category_id }).andWhere('job.valid_vacancy = true')
             .getMany();
@@ -100,7 +102,8 @@ class JobsRepository implements IJobsRepository{
                 "job.closing_date",
                 "job.category_id",
                 "job.user_id",
-                "user.name"
+                "user.name",
+                "user.avatar"
             ])
             .where('LOWER(job.vacancy) LIKE LOWER(:vacancy)', { vacancy: `%${vacancy}%` }).andWhere('job.valid_vacancy = true')
             .getMany();
@@ -135,7 +138,8 @@ class JobsRepository implements IJobsRepository{
                 "job.closing_date",
                 "job.category_id",
                 "job.user_id",
-                "user.name"
+                "user.name",
+                "user.avatar"
             ]).where('job.valid_vacancy IS NULL')
             .getMany();
 
@@ -181,6 +185,7 @@ class JobsRepository implements IJobsRepository{
                 "job.category_id",
                 "job.user_id",
                 "user.name",
+                "user.avatar",
                 "job.vacancy_available",
                 "job.created_at"
             ])
@@ -209,6 +214,7 @@ class JobsRepository implements IJobsRepository{
                 "job.category_id",
                 "job.user_id",
                 "user.name",
+                "user.avatar",
                 "job.vacancy_available",
                 "job.created_at"
             ])
