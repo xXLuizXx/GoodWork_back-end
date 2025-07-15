@@ -36,6 +36,15 @@ class CategoriesRepository implements ICategoriesRepository {
 
         return category;
     }
+
+    async getCategoriesNotValidated(): Promise<Category[]>{
+        const categories = await this.repository.createQueryBuilder('category')
+            .select('category')
+            .where('valid_category IS NULL')
+            .getMany();
+
+        return categories;
+    }
 }
 
 export { CategoriesRepository };

@@ -8,6 +8,7 @@ import "reflect-metadata";
  import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
  import { ensureAdmin } from "../middlewares/ensureAdmin";
 import { ensureAdminOrCompany } from "../middlewares/ensureAdminOrCompany";
+import { ListCategoriesNotValidatedController } from "../../../../modules/jobs/useCases/listCategoriesNotValidated/ListCategoriesNotValidatedController";
  
  
  const categoriesRoutes = Router();
@@ -15,9 +16,11 @@ import { ensureAdminOrCompany } from "../middlewares/ensureAdminOrCompany";
  const createCategoryController = new CreateCategoryController();
  const importCategoryController = new ImportCategoryController();
  const listCategoriesController = new ListCategoriesController();
- 
+ const listCategoriesNotValidatedController = new ListCategoriesNotValidatedController();
+
  categoriesRoutes.post("/", ensureAuthenticated, ensureAdminOrCompany, createCategoryController.handle);
  categoriesRoutes.get("/", ensureAuthenticated, listCategoriesController.handle);
  categoriesRoutes.post("/import", upload.single("file"), ensureAuthenticated, ensureAdmin, importCategoryController.handle);
+ categoriesRoutes.get("/categoriesNotValidated", listCategoriesNotValidatedController.getCategoriesNotValidated)
  
  export { categoriesRoutes };
