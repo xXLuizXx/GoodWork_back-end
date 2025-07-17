@@ -27,11 +27,26 @@ export class CreateCategories1678409948843 implements MigrationInterface {
                         default: null
                     },
                     {
+                        name: "user_id",
+                        type: "uuid",
+                        isNullable: true
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()"
                     }
                 ],
+                foreignKeys: [
+                    {
+                        name: "fk_categories_user_id",
+                        referencedTableName: "users",
+                        referencedColumnNames: ["id"],
+                        columnNames: ["user_id"],
+                        onDelete: "SET NULL",
+                        onUpdate: "SET NULL",
+                    }
+                ]
             })
         )
     }

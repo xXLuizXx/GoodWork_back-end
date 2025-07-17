@@ -9,10 +9,11 @@ class CategoriesRepository implements ICategoriesRepository {
         this.repository = getRepository(Category);
     }
     
-    async create({name, description} : ICreatedCategoryDTO): Promise<void>{
+    async create({name, description, user_id} : ICreatedCategoryDTO): Promise<void>{
         const category = this.repository.create({
             name,
             description,
+            user_id
         });
 
         await this.repository.save(category);
@@ -39,7 +40,15 @@ class CategoriesRepository implements ICategoriesRepository {
 
     async getCategoriesNotValidated(): Promise<Category[]>{
         const categories = await this.repository.createQueryBuilder('category')
-            .select('category')
+            .leftJoinAndSelect('category.user', 'user')
+            .select(["category.id",
+                "category.name",
+                "category.description",
+                "category.valid_category",
+                "category.created_at",
+                "category.user_id",
+                "user.name",
+                "user.avatar"])
             .where('valid_category IS NULL')
             .getMany();
 
