@@ -54,6 +54,16 @@ class CategoriesRepository implements ICategoriesRepository {
 
         return categories;
     }
+
+    async aproveCategorie(id: string, aprove: boolean): Promise<void>{
+        await this.repository.createQueryBuilder("category").
+            update('categories')
+            .set({
+                valid_category: aprove
+            })
+            .where("id = :id", { id })
+            .execute();
+    }
 }
 
 export { CategoriesRepository };

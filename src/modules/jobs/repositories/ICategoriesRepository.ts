@@ -11,6 +11,7 @@ interface ICategoriesRepository{
     list(): Promise<Category[]>;
     create({name, description, user_id}: ICreatedCategoryDTO): Promise<void>;
     getCategoriesNotValidated(): Promise<Category[]>;
+    aproveCategorie(id: string, aprove: boolean): Promise<void>;
 }
 
 export { ICategoriesRepository, ICreatedCategoryDTO };
