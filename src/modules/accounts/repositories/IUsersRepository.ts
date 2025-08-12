@@ -9,6 +9,7 @@ interface IUsersRepository{
     update(user: User, profileData): Promise<void>;
     listAllUsers(id: string): Promise<IDataUsersDTO[]>;
     listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]>;
+    updateUstatus(id: string, active: boolean): Promise<void>;
 }
 
 export { IUsersRepository }

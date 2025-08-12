@@ -158,8 +158,9 @@ class UsersRepository implements IUsersRepository {
                 'individual.curriculum',
                 'company.business_area'
             ])
-            .where("user.id != :id", { id: id }).
-            andWhere("user.isAdmin IS FALSE")
+            .where("user.id != :id", { id: id })
+            .andWhere("user.isAdmin IS FALSE")
+            .andWhere("user.active IS TRUE")
             .getMany();
     }
 
@@ -186,6 +187,7 @@ class UsersRepository implements IUsersRepository {
             ])
             .where("user.id != :id", { id })
             .andWhere("user.isAdmin IS FALSE")
+            .andWhere("user.active IS TRUE")
             .andWhere(
                 new Brackets(qb => {
                     qb.where("user.name LIKE :search", { search: `%${search}%` })
@@ -194,6 +196,17 @@ class UsersRepository implements IUsersRepository {
                 })
             )
             .getMany();
+    }
+    
+    async updateUstatus(id: string, active: boolean): Promise<void>{
+        return await this.baseRepository
+            .createQueryBuilder()
+            .update('users')
+            .set({
+                active: active
+            })
+            .where("id = :id", { id: id })
+            .execute();
     }
 }
 

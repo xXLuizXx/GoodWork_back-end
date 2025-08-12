@@ -32,7 +32,7 @@ export class CreateUsersTable1670000000000 implements MigrationInterface {
                 name: "isAdmin",
                 type: "boolean",
                 default: false,
-                },
+            },
             {
                 name: "avatar",
                 type: "varchar",
@@ -57,6 +57,11 @@ export class CreateUsersTable1670000000000 implements MigrationInterface {
             {
                 name: "user_type",
                 type: "varchar",
+            },
+            {
+                name: "active",
+                type: "boolean",
+                default: false,
             },
             {
                 name: "created_at",

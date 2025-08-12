@@ -50,6 +50,9 @@ class User {
     @Column({ type: "varchar", default: null })
     user_type: string;
 
+    @Column({ default: false })
+    active: boolean;
+
     @CreateDateColumn()
     created_at: Date;
 
