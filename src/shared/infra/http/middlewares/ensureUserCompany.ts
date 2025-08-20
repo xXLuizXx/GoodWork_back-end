@@ -7,7 +7,7 @@ export async function ensureUserCompany(request: Request, response: Response, ne
     const usersRepository = new UsersRepository()
     const user = await usersRepository.findById(id);
 
-    if(!(user.user_type === "company")){
+    if(!(user.isAdmin || user.user_type === "company")){
         throw new AppError("Erro");
     }
 

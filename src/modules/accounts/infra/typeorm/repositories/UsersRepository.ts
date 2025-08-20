@@ -208,6 +208,34 @@ class UsersRepository implements IUsersRepository {
             .where("id = :id", { id: id })
             .execute();
     }
+
+    async listAllUsersForGenerate(): Promise<IDataUsersDTO[]> {
+        return await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .leftJoinAndSelect("user.companyData", "company")
+            .select([
+                'user.id',
+                'user.name',
+                'user.email',
+                'user.telephone',
+                'user.avatar',
+                'user.road',
+                'user.number',
+                'user.neighborhood',
+                'user.user_type',
+                'user.active',
+                'individual.functionn',
+                'individual.ability',
+                'individual.is_employee',
+                'individual.curriculum',
+                'company.business_area',
+                'user.created_at'
+            ])
+            .where("user.isAdmin IS FALSE")
+            .getMany();
+    }
+
 }
 
 export { UsersRepository };

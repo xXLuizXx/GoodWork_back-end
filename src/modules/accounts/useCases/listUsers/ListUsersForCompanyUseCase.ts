@@ -10,7 +10,14 @@ class ListUsersForCompanyUseCase{
     constructor(@inject("UsersRepository") private usersRepository: IUsersRepository){}
 
     async listUsersForCompany(id: string): Promise<IDataUsersDTO[]>{
-        const users = await this.usersRepository.listAllUsers(id);
+        const user = await this.usersRepository.findById(id);
+        let users: IDataUsersDTO[] = [];
+
+        if(user.isAdmin){
+            users = await this.usersRepository.listAllUsersForGenerate();
+        }else{
+            users = await this.usersRepository.listAllUsers(id);
+        }
 
         return users;
     }
