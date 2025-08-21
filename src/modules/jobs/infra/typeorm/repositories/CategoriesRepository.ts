@@ -64,6 +64,22 @@ class CategoriesRepository implements ICategoriesRepository {
             .where("id = :id", { id })
             .execute();
     }
+
+    async listAllCategories(): Promise<Category[]>{
+        const categories = await this.repository.createQueryBuilder('category')
+            .leftJoinAndSelect('category.user', 'user')
+            .select(["category.id",
+                "category.name",
+                "category.description",
+                "category.valid_category",
+                "category.created_at",
+                "category.user_id",
+                "user.name",
+                "user.avatar"])
+            .getMany();
+
+        return categories;
+    }
 }
 
 export { CategoriesRepository };

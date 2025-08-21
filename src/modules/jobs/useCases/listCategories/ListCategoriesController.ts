@@ -9,6 +9,13 @@ class ListCategoriesController{
 
         return response.json(lista);
     }
+    
+    async allCategories(request: Request, response: Response): Promise<Response>{
+        const listCategoriesUseCase = container.resolve(ListCategoriesUseCase);
+        const lista = await listCategoriesUseCase.listAllCategories();
+
+        return response.json(lista);
+    }
 }
 
 export { ListCategoriesController };

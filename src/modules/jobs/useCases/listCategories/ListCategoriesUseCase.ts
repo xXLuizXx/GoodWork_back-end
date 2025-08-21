@@ -11,6 +11,12 @@ class ListCategoriesUseCase {
         
         return categories;
     }
+
+    async listAllCategories(): Promise<Category[]> {
+        const categories = await this.categoriesRepository.listAllCategories();
+        
+        return categories;
+    }
 }
 
 export { ListCategoriesUseCase };
