@@ -1,6 +1,6 @@
 import { Category } from "../entities/Category";
 import { ICategoriesRepository, ICreatedCategoryDTO } from "../../../repositories/ICategoriesRepository";
-import { getRepository, Repository } from "typeorm";
+import { Brackets, getRepository, Repository } from "typeorm";
 
 class CategoriesRepository implements ICategoriesRepository {
     private repository: Repository<Category>;
@@ -79,6 +79,36 @@ class CategoriesRepository implements ICategoriesRepository {
             .getMany();
 
         return categories;
+    }
+
+    async searchCategories(search: string, status: boolean | null): Promise<Category[]> {
+        const queryBuilder = this.repository.createQueryBuilder('category')
+            .leftJoinAndSelect('category.user', 'user')
+            .select([
+                "category.id",
+                "category.name", 
+                "category.description",
+                "category.valid_category",
+                "category.created_at",
+                "category.user_id",
+                "user.name",
+                "user.avatar"
+            ]);
+
+
+        if (status !== null) {
+            queryBuilder.where("category.valid_category = :status", { status });
+        } 
+
+        else if (search) {
+            queryBuilder.where(new Brackets(qb => {
+                qb.where("category.name LIKE :search", { search: `%${search}%` })
+                .orWhere("category.description LIKE :search", { search: `%${search}%` })
+                .orWhere("user.name LIKE :search", { search: `%${search}%` });
+            }));
+        }
+
+        return queryBuilder.getMany();
     }
 }
 

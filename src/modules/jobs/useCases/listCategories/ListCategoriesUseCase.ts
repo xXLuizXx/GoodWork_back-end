@@ -1,3 +1,4 @@
+import { transform } from "typescript";
 import { Category } from "../../infra/typeorm/entities/Category";
 import { ICategoriesRepository } from "../../repositories/ICategoriesRepository";
 import { inject, injectable } from "tsyringe";
@@ -17,6 +18,26 @@ class ListCategoriesUseCase {
         
         return categories;
     }
+
+    async searchCategories(search: string): Promise<Category[]> {
+        let processedSearch = search;
+        let statusBoolean: boolean | null = null;
+
+        const searchLower = search.toLowerCase();
+        
+        if (searchLower === 'ativo' || searchLower === 'inativo') {
+            statusBoolean = searchLower === 'ativo';
+            processedSearch = ''; 
+        }
+
+        const categories = await this.categoriesRepository.searchCategories(
+            processedSearch, 
+            statusBoolean
+        );
+
+        return categories;
+    }
+
 }
 
 export { ListCategoriesUseCase };

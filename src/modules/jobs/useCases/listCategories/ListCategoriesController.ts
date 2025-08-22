@@ -7,14 +7,23 @@ class ListCategoriesController{
         const listCategoriesUseCase = container.resolve(ListCategoriesUseCase);
         const lista = await listCategoriesUseCase.execute();
 
-        return response.json(lista);
+        return response.status(200).json(lista);
     }
     
     async allCategories(request: Request, response: Response): Promise<Response>{
         const listCategoriesUseCase = container.resolve(ListCategoriesUseCase);
         const lista = await listCategoriesUseCase.listAllCategories();
 
-        return response.json(lista);
+        return response.status(200).json(lista);
+    }
+
+    async searchCategories(request: Request, response: Response): Promise<Response>{
+        const { search }  = request.query;
+
+        const listCategoriesUseCase = container.resolve(ListCategoriesUseCase);
+        const lista = await listCategoriesUseCase.searchCategories(search);
+
+        return response.status(200).json(lista);
     }
 }
 

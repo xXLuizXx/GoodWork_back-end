@@ -13,6 +13,7 @@ interface ICategoriesRepository{
     getCategoriesNotValidated(): Promise<Category[]>;
     aproveCategorie(id: string, aprove: boolean): Promise<void>;
     listAllCategories(): Promise<Category[]>;
+    searchCategories(search: string, status: boolean | null): Promise<Category[]>
 }
 
 export { ICategoriesRepository, ICreatedCategoryDTO };

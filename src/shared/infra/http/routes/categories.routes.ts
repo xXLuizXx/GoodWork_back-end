@@ -25,6 +25,7 @@ categoriesRoutes.get("/", ensureAuthenticated, listCategoriesController.handle);
 categoriesRoutes.post("/import", upload.single("file"), ensureAuthenticated, ensureAdmin, importCategoryController.handle);
 categoriesRoutes.get("/categoriesNotValidated", ensureAuthenticated, ensureAdmin, listCategoriesNotValidatedController.getCategoriesNotValidated);
 categoriesRoutes.get("/allCategories", ensureAuthenticated, ensureAdmin, listCategoriesController.allCategories);
-categoriesRoutes.patch("/validateCategory", aproveCategoryController.aproveCategory);
+categoriesRoutes.patch("/validateCategory", ensureAuthenticated, ensureAdmin, aproveCategoryController.aproveCategory);
+categoriesRoutes.get("/searchCategories",ensureAuthenticated, ensureAdmin, listCategoriesController.searchCategories);
 
 export { categoriesRoutes };
