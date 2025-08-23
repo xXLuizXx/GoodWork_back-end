@@ -22,18 +22,23 @@ class ListCategoriesUseCase {
     async searchCategories(search: string): Promise<Category[]> {
         let processedSearch = search;
         let statusBoolean: boolean | null = null;
-
+        
         const searchLower = search.toLowerCase();
         
+        let categories: Category[] = [];
         if (searchLower === 'ativo' || searchLower === 'inativo') {
             statusBoolean = searchLower === 'ativo';
             processedSearch = ''; 
         }
 
-        const categories = await this.categoriesRepository.searchCategories(
+        categories = await this.categoriesRepository.searchCategories(
             processedSearch, 
             statusBoolean
         );
+
+        if(categories.length <= 0){
+            categories = await this.categoriesRepository.listAllCategories()
+        }
 
         return categories;
     }
