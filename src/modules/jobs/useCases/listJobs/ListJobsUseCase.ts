@@ -83,6 +83,19 @@ class ListJobsUseCase{
 
         return await this.jobsRepository.findById(jobData.id);
     }
+
+    async gelAllJobs(search: string): Promise<Job[]>{
+        let jobs;
+        
+        if(search.length <= 0){
+            jobs = await this.jobsRepository.listAllJobs();
+        }else{
+            jobs = await this.jobsRepository.listAllJobsSearch(search);
+        }
+        
+
+        return jobs;
+    }
 }
 
 export { ListJobsUseCase }

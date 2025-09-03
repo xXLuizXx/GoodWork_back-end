@@ -14,6 +14,8 @@ interface IJobsRepository{
     getJob(id: string): Promise<Job>;
     updateJob(id: string, job: Job): Promise<void>;
     closeOrOpen(id: string, valid: boolean): Promise<void>;
+    listAllJobs(): Promise<Job[]>
+    listAllJobsSearch(search: string): Promise<Job[]>;
 }
 
 export type { IJobsRepository }

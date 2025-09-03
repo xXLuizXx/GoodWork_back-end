@@ -29,4 +29,5 @@ jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJo
 jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
 jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, uploadBanner.single("banner"), listJobsController.updateJob);
 jobsRoutes.patch("/updateStatusJob",ensureAuthenticated, ensureAuthenticated, closeOrOpenVacancyController.closeOrOpenVacancy);
+jobsRoutes.get("/listAllJobs", ensureAuthenticated, ensureAdmin, listJobsController.getAllJobs);
 export { jobsRoutes }

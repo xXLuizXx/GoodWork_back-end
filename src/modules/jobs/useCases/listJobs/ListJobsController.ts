@@ -113,6 +113,13 @@ class ListJobsController{
             });
         }
     }
+    async getAllJobs(request: Request, response: Response):Promise<Response> {
+        const { search } = request.query;
+        const listJobsUseCase = container.resolve(ListJobsUseCase);
+        const allJobs = await listJobsUseCase.gelAllJobs(search);
+
+        return response.status(200).json(allJobs);
+    }
 }
 
 

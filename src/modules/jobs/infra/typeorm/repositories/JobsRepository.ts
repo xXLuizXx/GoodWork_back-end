@@ -254,6 +254,61 @@ class JobsRepository implements IJobsRepository{
             .where("id = :id",{id})
             .execute();
     }
+
+    async listAllJobs(): Promise<Job[]>{
+        const job = await this.repository.createQueryBuilder('job')
+            .leftJoinAndSelect('job.user', 'user')
+            .select([
+                "job.id",
+                "job.vacancy",
+                "job.contractor",
+                "job.description_vacancy",
+                "job.requirements",
+                "job.workload",
+                "job.location",
+                "job.benefits",
+                "job.banner",
+                "job.valid_vacancy",
+                "job.amount_vacancy",
+                "job.closing_date",
+                "job.created_at",
+                "job.category_id",
+                "job.user_id",
+                "user.name",
+                "user.avatar"
+            ])
+            .getMany();
+
+        return job;
+    }
+
+    async listAllJobsSearch(search: string): Promise<Job[]>{
+        const job = await this.repository.createQueryBuilder('job')
+            .leftJoinAndSelect('job.user', 'user')
+            .select([
+                "job.id",
+                "job.vacancy",
+                "job.contractor",
+                "job.description_vacancy",
+                "job.requirements",
+                "job.workload",
+                "job.location",
+                "job.benefits",
+                "job.banner",
+                "job.valid_vacancy",
+                "job.amount_vacancy",
+                "job.closing_date",
+                "job.created_at",
+                "job.category_id",
+                "job.user_id",
+                "user.name",
+                "user.avatar"
+            ]).where('LOWER(job.vacancy) LIKE LOWER(:vacancy)', { vacancy: `%${search}%` })
+            .getMany();
+
+        return job;
+    }
+    
 }
 
 export { JobsRepository }
