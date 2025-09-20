@@ -21,6 +21,9 @@ class IndividualUser {
     @Column()
     curriculum: string;
 
+    @Column()
+    categories_interest: string;
+
     @OneToOne(() => User, (user) => user.individualData)
     user: User;
 }

@@ -32,6 +32,10 @@ export class IndividualUsers1733062335371 implements MigrationInterface {
                         name: "curriculum",
                         type: "varchar",
                     },
+                    {
+                        name: "categories_interest",
+                        type: "varchar",
+                    },
                 ],
             })
         );

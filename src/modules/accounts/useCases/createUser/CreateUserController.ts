@@ -19,14 +19,15 @@ class CreateUserController {
             functionn,
             ability,
             business_area,
+            categories_interest,
         } = request.body;
         var fileCurriculum = null;
         if (request.body.user_type === "company"){
             fileCurriculum = null;
         }else{
             fileCurriculum = request.file.filename;
-        }
-        
+        }    
+
         const createUserUseCase = container.resolve(CreateUserUseCase);
 
         try {
@@ -45,6 +46,7 @@ class CreateUserController {
                 functionn,
                 ability,
                 curriculum: fileCurriculum,
+                categories_interest,
                 business_area,
             });
 

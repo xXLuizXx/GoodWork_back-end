@@ -11,6 +11,7 @@ interface IUsersRepository{
     listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]>;
     updateUstatus(id: string, active: boolean): Promise<void>;
     listAllUsersForGenerate(): Promise<IDataUsersDTO[]>;
+    getCategoriesInterest(id: string): Promise<string>;
 }
 
 export { IUsersRepository }

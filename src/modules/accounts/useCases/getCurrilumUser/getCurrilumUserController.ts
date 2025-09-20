@@ -4,7 +4,6 @@ import fs from "fs";
 
 class getCurrilumUserController{
     async handle(request: Request, response: Response): Promise<void> {
-        console.log("Entrando no cotroller");
         const { filename } = request.params;
         const curricullumDir = resolve(__dirname, "..","..","..","..","..", "tmp", "curriculums", "curriculums_user_profile");
 

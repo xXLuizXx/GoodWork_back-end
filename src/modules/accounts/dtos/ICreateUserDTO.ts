@@ -16,6 +16,7 @@ interface ICreateUsersDTO {
     is_employee?: boolean;
     curriculum?: string;
     business_area?: string;
+    categories_interest?: string;
   }
   
 export { ICreateUsersDTO }

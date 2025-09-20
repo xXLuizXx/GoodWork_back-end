@@ -60,7 +60,6 @@ describe("Create job", () => {
             banner: "test banner",
             category_id: "test category id"
         });
-        console.log(job);
         expect(job.vacancy_available).toBe(true);
     });
 })

@@ -1,6 +1,7 @@
 import { JobsRepository } from "../../infra/typeorm/repositories/JobsRepository";
 import {inject, injectable} from "tsyringe";
 import {Job} from "../../infra/typeorm/entities/Job";
+import { IUsersRepository } from "../../../accounts/repositories/IUsersRepository";
 
 interface IJob {
     id: string;
@@ -19,7 +20,10 @@ interface IJob {
 }
 @injectable()
 class ListJobsUseCase{
-    constructor(@inject("JobsRepository" ) private jobsRepository: JobsRepository) {}
+    constructor(
+        @inject("JobsRepository" ) private jobsRepository: JobsRepository,
+        @inject("UsersRepository") private usersRepository: IUsersRepository
+    ) {}
 
     async execute(): Promise<Job[]>{
         const jobs = await this.jobsRepository.list();
@@ -95,6 +99,36 @@ class ListJobsUseCase{
         
 
         return jobs;
+    }
+
+    async gelAllJobsForUser(id: string): Promise<Job[]> {
+        const result = await this.usersRepository.getCategoriesInterest(id);
+
+        let categoryIds: string[] = [];
+        
+        if (result && typeof result === 'object' && 'individual_categories_interest' in result) {
+            const categoriesString = result.individual_categories_interest;
+            
+            if (typeof categoriesString === 'string') {
+                try {
+                    categoryIds = JSON.parse(categoriesString);
+                } catch (error) {
+                    console.error('Erro ao fazer parsing do JSON:', error);
+                    categoryIds = [];
+                }
+            } else {
+                categoryIds = Array.isArray(categoriesString) ? categoriesString : [];
+            }
+        }
+        
+        let allJobs: Job[] = [];
+
+        for (const categoryId of categoryIds) {
+            const jobs = await this.jobsRepository.listByCategory(categoryId);
+            allJobs = allJobs.concat(jobs);
+        }
+        
+        return allJobs;
     }
 }
 

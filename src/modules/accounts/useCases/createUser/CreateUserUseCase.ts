@@ -26,6 +26,7 @@ class CreateUserUseCase {
         functionn,
         ability,
         curriculum,
+        categories_interest,
         business_area,
     }: ICreateUsersDTO): Promise<void> {
         const userAlreadyExists = await this.usersRepository.findByEmail(email);
@@ -56,6 +57,7 @@ class CreateUserUseCase {
                 functionn,
                 ability,
                 curriculum,
+                categories_interest,
             });
             
         } else if (user_type === "company") {

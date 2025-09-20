@@ -21,7 +21,7 @@ const listCategoriesNotValidatedController = new ListCategoriesNotValidatedContr
 const aproveCategoryController = new AproveCategoryController()
 
 categoriesRoutes.post("/", ensureAuthenticated, ensureAdminOrCompany, createCategoryController.handle);
-categoriesRoutes.get("/", ensureAuthenticated, listCategoriesController.handle);
+categoriesRoutes.get("/", listCategoriesController.handle);
 categoriesRoutes.post("/import", upload.single("file"), ensureAuthenticated, ensureAdmin, importCategoryController.handle);
 categoriesRoutes.get("/categoriesNotValidated", ensureAuthenticated, ensureAdmin, listCategoriesNotValidatedController.getCategoriesNotValidated);
 categoriesRoutes.get("/allCategories", ensureAuthenticated, ensureAdmin, listCategoriesController.allCategories);

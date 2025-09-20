@@ -37,6 +37,7 @@ class UsersRepository implements IUsersRepository {
             is_employee,
             curriculum,
             business_area,
+            categories_interest
         } = data;
         
         const user = this.baseRepository.create({
@@ -63,6 +64,7 @@ class UsersRepository implements IUsersRepository {
                 ability,
                 is_employee,
                 curriculum,
+                categories_interest,
             });
 
             await this.individualRepository.save(individualUser);
@@ -234,6 +236,15 @@ class UsersRepository implements IUsersRepository {
             ])
             .where("user.isAdmin IS FALSE")
             .getMany();
+    }
+
+    async getCategoriesInterest(id: string): Promise<string> {
+        return await this.baseRepository
+            .createQueryBuilder("user")
+            .leftJoinAndSelect("user.individualData", "individual")
+            .select(['individual.categories_interest'])
+            .where("user.id = :id", { id })
+            .getRawOne();
     }
 
 }
