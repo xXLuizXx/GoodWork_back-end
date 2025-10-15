@@ -50,6 +50,7 @@ class JobsRepository implements IJobsRepository{
                 "user.name",
                 "user.avatar"
             ]).where('job.valid_vacancy = true')
+            .andWhere('job.vacancy_available = true')
             .getMany();
 
         return job;
@@ -77,7 +78,9 @@ class JobsRepository implements IJobsRepository{
                 "user.name",
                 "user.avatar"
             ])
-            .where('job.category_id = :category_id', { category_id }).andWhere('job.valid_vacancy = true')
+            .where('job.category_id = :category_id', { category_id })
+            .andWhere('job.valid_vacancy = true')
+            .andWhere('job.vacancy_available = true')
             .getMany();
 
         return jobs;
@@ -105,7 +108,9 @@ class JobsRepository implements IJobsRepository{
                 "user.name",
                 "user.avatar"
             ])
-            .where('LOWER(job.vacancy) LIKE LOWER(:vacancy)', { vacancy: `%${vacancy}%` }).andWhere('job.valid_vacancy = true')
+            .where('LOWER(job.vacancy) LIKE LOWER(:vacancy)', { vacancy: `%${vacancy}%` })
+            .andWhere('job.valid_vacancy = true')
+            .andWhere('job.vacancy_available = true')
             .getMany();
 
         return jobs;

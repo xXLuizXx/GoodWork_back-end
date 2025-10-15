@@ -5,16 +5,15 @@ import { CreateApplicationJobUseCase } from "./CreateApplicationJobUseCase";
 class CreateApplicationJobController{
 
     async createApplication(request: Request, response: Response): Promise<Response>{
-        const { user_id, job_id, curriculum_user } = request.body;
+        const { id } = request.user;
+        const {job_id, user_id} = request.body;
+        const curriculum_user = request.file.filename;
+        const finalUserId = user_id || id;
+        const applicantionVacancy = container.resolve(CreateApplicationJobUseCase);
 
-        const createApplicationJobUseCase = container.resolve(CreateApplicationJobUseCase);
-        try{
-            await createApplicationJobUseCase.execute({user_id, job_id, curriculum_user});
+        const application = await applicantionVacancy.execute({user_id: finalUserId, job_id, curriculum_user});
 
-            return response.status(201).send();
-        }catch(error){
-            return response.status(400).json({ error: error.message });
-        }
+        return response.status(200).json(application);
         
     }
 }
