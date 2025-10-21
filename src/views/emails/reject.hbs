@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{subject}}</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                line-height: 1.6; 
+                color: #333; 
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            .header { 
+                color: #2c3e50; 
+                border-bottom: 2px solid #eee; 
+                padding-bottom: 10px; 
+                text-align: center;
+            }
+            .footer { 
+                margin-top: 20px; 
+                padding-top: 10px; 
+                border-top: 2px solid #eee; 
+                font-size: 0.9em; 
+                text-align: center;
+                color: #666;
+            }
+            .message { 
+                background-color: #f8f9fa; 
+                padding: 20px; 
+                border-radius: 5px; 
+                margin: 20px 0; 
+                border-left: 4px solid #6c757d;
+            }
+            .contact-info { 
+                background-color: #e9f7fe; 
+                padding: 15px; 
+                border-radius: 5px; 
+                margin: 20px 0;
+            }
+            .thank-you {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Agradecemos seu interesse em trabalhar conosco</h1>
+        </div>
+
+        <div class="message">
+            <p class="thank-you">Olá, <strong>{{name}}</strong>!</p>
+            
+            <p>Após a análise de sua candidatura e de seu currículo, neste momento, decidimos seguir com outros candidatos para a oportunidade de <strong>{{vacancy_name}}</strong>.</p>
+            
+            <p>Desde já agradecemos o interesse em nossa vaga e desejamos sucesso em sua busca profissional.</p>
+        </div>
+
+        <div class="contact-info">
+            <h3>Informações da Empresa:</h3>
+            <p><strong>Empresa:</strong> {{company_name}}</p>
+            <p><small>Esta decisão foi baseada em critérios de seleção específicos para esta vaga.</small></p>
+        </div>
+
+        <div class="footer">
+            <p>Atenciosamente,<br>
+            <strong>Equipe {{company_name}}</strong></p>
+            <p><small>Esta mensagem foi enviada através do nosso sistema de seleção</small></p>
+        </div>
+    </body>
+</html>
