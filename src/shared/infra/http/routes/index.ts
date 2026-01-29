@@ -10,6 +10,7 @@ import { bannersRoutes } from "./banners.routes";
 import { avatarRoutes } from "./avatar.routes";
 import { curricullumApplicationRoutes } from "./curricullumApplication.routes";
 import { curricullumUserProfileRoutes } from "./curriculumUserProfile.routes";
+import { interviewRoutes } from "./interview.routes";
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use("/banners", bannersRoutes);
 router.use("/avatars", avatarRoutes);
 router.use("/curriculum_application", curricullumApplicationRoutes);
 router.use("/curriculum_user_profile", curricullumUserProfileRoutes);
+router.use("/interview", interviewRoutes);
 router.use(authenticateRoutes);
 
 export { router }

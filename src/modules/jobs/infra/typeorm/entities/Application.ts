@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryColumn, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { v4 as uuidV4 } from "uuid";
 import { User } from "../../../../accounts/infra/typeorm/entities/User"; // Importe a entidade User
 import { Job } from "../entities/Job";
+import { Interview } from "../entities/Interviews";
 
 @Entity("applications")
 class Application {
@@ -15,6 +16,9 @@ class Application {
     @ManyToOne(() => Job)
     @JoinColumn({ name: "job_id" })
     job: Job;
+
+    @OneToOne(() => Interview, (interview) => interview.application)
+    interview: Interview;
 
     @Column()
     curriculum_user: string;

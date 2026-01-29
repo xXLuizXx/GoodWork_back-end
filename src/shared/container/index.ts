@@ -13,7 +13,8 @@ import { IApplicationRepository } from "../../modules/jobs/repositories/IApplica
 import { ApplicationRepository } from "../../modules/jobs/infra/typeorm/repositories/ApplicationRepository";
 import { MailTrapMailProvider } from "../../modules/mailtrap/infra/http/nodemailer/MailTrapMailProvider";
 import { IMailRepository } from "../../modules/mailtrap/repositories/IMailRepository";
-
+import { IInterviewApplicationJobRepository } from "../../modules/jobs/repositories/IInterviewApplicationJobRepository";
+import { InterviewApplicationJobReposiory } from "../../modules/jobs/infra/typeorm/repositories/InterviewApplicationJobRepository";
 
 container.registerSingleton<ICategoriesRepository>("CategoriesRepository", CategoriesRepository);
 container.registerSingleton<ISpecificationsRepository>("SpecificationRepository", SpecificationsRepository);
@@ -22,3 +23,4 @@ container.registerSingleton<IJobsRepository>("JobsRepository", JobsRepository);
 container.registerSingleton<IUsersTokensRepository>("UsersTokensRepository", UsersTokensRepository);
 container.registerSingleton<IApplicationRepository>("ApplicationRepository", ApplicationRepository);
 container.registerSingleton<IMailRepository>("MailRepository", MailTrapMailProvider);
+container.registerSingleton<IInterviewApplicationJobRepository>("InterviewApplicationJobRepository", InterviewApplicationJobReposiory);
