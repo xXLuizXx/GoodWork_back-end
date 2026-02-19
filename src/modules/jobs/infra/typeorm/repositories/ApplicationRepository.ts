@@ -57,6 +57,23 @@ class ApplicationRepository implements IApplicationRepository {
             .where("id = :id", { id })
             .execute();
     }
+
+    async findById(id: Application): Promise<Application>{
+        const application = await this.repository.createQueryBuilder("application")
+            .leftJoinAndSelect("application.user", "user")
+            .leftJoinAndSelect("user.individualData", "individualData")
+            .leftJoinAndSelect("application.job", "job")
+            .select([
+                "application.id",
+                "application.user",
+                "application.job_id",
+                "user.name",
+                "application.created_at"
+            ])
+            .where("application.id = :id", { id }).getOne()
+
+        return application;
+    }
     
 }
 

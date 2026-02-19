@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, ManyToOne } from "typeorm";
 import { Application } from "./Application";
 import { v4 as uuidV4 } from "uuid";
 
@@ -7,7 +7,7 @@ class Interview {
     @PrimaryColumn()
     id: string;
 
-    @OneToOne(() => Application, (application) => application.interview)
+    @ManyToOne(() => Application)
     @JoinColumn({ name: "application_id" })
     application: Application;
 

@@ -6,6 +6,7 @@ interface IApplicationRepository{
     create(data: ICreateApplicationDTO): Promise<void>;
     listApplications(job_id: string): Promise<Application[]>;
     aproveApplication(id: string, data: IApproveApplicationDTO): Promise<void>;
+    findById(id: Application): Promise<Application>;
 }
 
 export { IApplicationRepository }
