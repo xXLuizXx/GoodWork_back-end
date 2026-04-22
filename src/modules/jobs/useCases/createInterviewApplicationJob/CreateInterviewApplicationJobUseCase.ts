@@ -12,38 +12,45 @@ class CreateInterviewApplicationJobUseCase{
         @inject("ApplicationRepository") private applicationRepository: IApplicationRepository
     ){};
 
-    async execute(interviews: ICreateInterviewDTO[], batchSize: number = 10): Promise<void> {
+    async execute(data: ICreateInterviewDTO | ICreateInterviewDTO[], batchSize: number = 10): Promise<void> {
+        const interviews = Array.isArray(data) ? data : [data];
+
         for (let i = 0; i < interviews.length; i += batchSize) {
             const batch = interviews.slice(i, i + batchSize);
             await Promise.all(
                 batch.map(async (interview) => {
-                    const application = await this.getApplication(interview.application.id);
-
-                    if(!application){
-                        throw new AppError("Não existe nenhuma candidatura para a marcação dessa intrevista!");
+                    const application = await this.getApplication(interview.application_id);
+                    if (!application) {
+                        throw new AppError("Não existe nenhuma candidatura para a marcação dessa entrevista!");
                     }
 
-                    if(!interview.interview_type){
+                    const existingInterview = await this.interviewAppicationJobRepository.findByApplicationId(interview.application_id);
+
+                    if (existingInterview) {
+                        throw new AppError("Já existe uma entrevista marcada para essa candidatura!");
+                    }
+
+                    if (!interview.interview_type) {
                         throw new AppError("Favor preencher o tipo da entrevista!");
                     }
 
-                    if(interview.interview_type === 'presencial'){
-                        if(!interview.location){
+                    if (interview.interview_type === 'presencial') {
+                        if (!interview.location) {
                             throw new AppError("Favor inserir o local da entrevista!");
                         }
-                    }else{
-                        if(!interview.meeting_link){
+                    } else {
+                        if (!interview.meeting_link) {
                             throw new AppError("Favor inserir o link para a video chamada!");
                         }
                     }
-                    this.interviewAppicationJobRepository.create(interview)
+
+                    await this.interviewAppicationJobRepository.create({ ...interview, application });
                 })
             );
-            
         }
     }
 
-    async getApplication(application_id: Application): Promise<Application>{
+    async getApplication(application_id: string): Promise<Application>{
         try {
             const application = await this.applicationRepository.findById(application_id);
             return application;

@@ -2,7 +2,7 @@ import { Application } from "../entities/Application";
 import { IApplicationRepository } from "../../../repositories/IApplicationRepository";
 import { ICreateApplicationDTO } from "../../../../../modules/jobs/dtos/ICreateApplicationDTO";
 import { getRepository, Repository } from "typeorm";
-import { application } from "express";
+
 import { IApproveApplicationDTO } from "../../../../../modules/jobs/dtos/IAprovedApplicationsDTO";
 
 class ApplicationRepository implements IApplicationRepository {
@@ -58,7 +58,7 @@ class ApplicationRepository implements IApplicationRepository {
             .execute();
     }
 
-    async findById(id: Application): Promise<Application>{
+    async findById(id: string): Promise<Application | undefined>{
         const application = await this.repository.createQueryBuilder("application")
             .leftJoinAndSelect("application.user", "user")
             .leftJoinAndSelect("user.individualData", "individualData")

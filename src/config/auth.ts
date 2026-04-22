@@ -1,7 +1,7 @@
 export default {
-    secretToken: "e7d296c521a852f462bdeca8b8fe2554",
+    secretToken: process.env.JWT_SECRET as string,
     expiresInToken: "1h",
-    secretRefreshToken: "bb9c6d407797946178b5a43a36a72491",
+    secretRefreshToken: process.env.JWT_REFRESH_SECRET as string,
     expiresInRefreshToken: "1d",
     expiresRefreshTokenDays: 15,
-  };
+};

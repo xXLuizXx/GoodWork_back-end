@@ -1,7 +1,8 @@
 import { Application } from "../infra/typeorm/entities/Application";
 
 interface ICreateInterviewDTO {
-    application: Application;
+    application_id: string;
+    application?: Application;
     interview_type: "presencial" | "online";
     scheduled_date: string;
     duration_minutes?: number;
@@ -14,4 +15,4 @@ interface ICreateInterviewDTO {
     status?: "scheduled" | "completed" | "cancelled" | "rescheduled";
 }
 
-export { ICreateInterviewDTO }
+export type { ICreateInterviewDTO }

@@ -4,7 +4,8 @@
     "host": "localhost",
     "username": "guest",
     "password": "guest",
-    "database": "database", 
+    "database": "database",
+    "timezone": "UTC", 
     "migrations": ["./src/shared/infra/typeorm/migrations/*.ts"],
     "entities": ["./src/modules/**/entities/*.ts"],
     "cli": {

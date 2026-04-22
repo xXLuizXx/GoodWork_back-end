@@ -5,7 +5,7 @@ import { CreateInterviewApplicationJobUseCase } from "./CreateInterviewApplicati
 class CreateInterviewApplicationJobController{
     async createInterviewApplicationJob(request: Request, response: Response): Promise<Response>{
         const interviews = request.body;
-        
+
         const createInterviewUseCase = container.resolve(CreateInterviewApplicationJobUseCase);
 
         try {
