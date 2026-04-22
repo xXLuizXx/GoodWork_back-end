@@ -53,7 +53,7 @@ class AuthenticateUserUseCase {
     }
 
     if(!user.active){
-        throw new AppError("Sua conta foi desativada por violar as regras de uso da plataforma. Caso acredite que isso seja um engano, entre em contato com o suporte!", 403);
+        throw new AppError("Conta inativa. Verifique seu e-mail para ativar a conta ou entre em contato com o suporte.", 403);
     }
 
     const passwordMatch = await compare(password, user.password);

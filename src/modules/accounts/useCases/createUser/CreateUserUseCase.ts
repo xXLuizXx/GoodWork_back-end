@@ -1,14 +1,29 @@
 import { inject, injectable } from "tsyringe";
+import path from "path";
+import { v4 as uuidV4 } from "uuid";
 import { ICreateUsersDTO } from "../../dtos/ICreateUserDTO";
 import { IUsersRepository } from "../../repositories/IUsersRepository";
+import { IUsersTokensRepository } from "../../repositories/IUsersTokensRepository";
+import { DayjsDateProvider } from "../../../../shared/container/providers/DateProvider/implementations/DayjsDateProvider";
+import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
 import { hash } from "bcrypt";
 import { AppError } from "../../../../shared/errors/AppError";
+
+interface IMailProvider {
+    sendMail(data: ISendMailDTO): Promise<void>;
+}
 
 @injectable()
 class CreateUserUseCase {
     constructor(
-        @inject("UsersRepository") 
-        private usersRepository: IUsersRepository
+        @inject("UsersRepository")
+        private usersRepository: IUsersRepository,
+        @inject("UsersTokensRepository")
+        private usersTokensRepository: IUsersTokensRepository,
+        @inject("DayjsDateProvider")
+        private dateProvider: DayjsDateProvider,
+        @inject("MailRepository")
+        private mailProvider: IMailProvider,
     ) {}
 
     async execute({
@@ -80,8 +95,30 @@ class CreateUserUseCase {
         } else {
             throw new AppError("Invalid user type");
         }
+
+        const user = await this.usersRepository.findByEmail(email);
+
+        const token = uuidV4();
+        const expiresDate = this.dateProvider.addHours(24);
+
+        await this.usersTokensRepository.create({
+            userId: user.id,
+            refreshToken: token,
+            expiresDate,
+            type: "email_verification",
+        });
+
+        const verifyLink = `${process.env.APP_WEB_URL}/verify-account?token=${token}`;
+        const templatePath = path.resolve("src", "views", "emails", "verify-account.hbs");
+
+        await this.mailProvider.sendMail({
+            to: user.email,
+            subject: "Confirme seu e-mail — GoodWork",
+            variables: { name: user.name, link: verifyLink },
+            path: templatePath,
+        });
     }
-    
+
 }
 
 export { CreateUserUseCase };

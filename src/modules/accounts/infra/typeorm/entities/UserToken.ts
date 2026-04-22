@@ -5,37 +5,39 @@ import {
     JoinColumn,
     ManyToOne,
     PrimaryColumn,
-  } from "typeorm";
-  import { v4 as uuidV4 } from "uuid";
-  
-  import { User } from "./User";
-  
-  @Entity("user_token")
-  class UserToken {
+} from "typeorm";
+import { v4 as uuidV4 } from "uuid";
+import { User } from "./User";
+
+@Entity("user_token")
+class UserToken {
     @PrimaryColumn()
-    id: string;
-  
+    id!: string;
+
     @Column({ name: "refresh_token" })
-    refreshToken: string;
-  
+    refreshToken!: string;
+
     @Column({ name: "user_id" })
-    userId: string;
-  
+    userId!: string;
+
     @ManyToOne(() => User)
     @JoinColumn({ name: "user_id" })
-    user: User;
-  
+    user!: User;
+
     @Column({ name: "expires_date" })
-    expiresDate: Date;
-  
+    expiresDate!: Date;
+
+    @Column({ default: "refresh_token" })
+    type!: "refresh_token" | "password_reset" | "email_verification";
+
     @CreateDateColumn({ name: "created_at" })
-    createdAt: Date;
-  
+    createdAt!: Date;
+
     constructor() {
-      if (!this.id) {
-        this.id = uuidV4();
-      }
+        if (!this.id) {
+            this.id = uuidV4();
+        }
     }
-  }
-  
-  export { UserToken };
+}
+
+export { UserToken };

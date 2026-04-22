@@ -88,7 +88,7 @@ class UsersRepository implements IUsersRepository {
             .where("user.email = :email", { email })
             .getOne();
 
-        return user ? plainToClass(User, user) : null;
+        return (user ? plainToClass(User, user) : null) as User;
     }
 
     async findById(id: string): Promise<User> {
@@ -99,10 +99,10 @@ class UsersRepository implements IUsersRepository {
             .where("user.id = :id", { id })
             .getOne();
 
-        return user;
+        return user as User;
     }
 
-    async update(user: User, profileTipeUser): Promise<void> {
+    async update(user: User, profileTipeUser: any): Promise<void> {
         await this.baseRepository
             .createQueryBuilder()
             .update('users')
@@ -140,7 +140,7 @@ class UsersRepository implements IUsersRepository {
     }
 
     async listAllUsers(id: string): Promise<IDataUsersDTO[]> {
-        return await this.baseRepository
+        const result = await this.baseRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.individualData", "individual")
             .leftJoinAndSelect("user.companyData", "company")
@@ -164,10 +164,11 @@ class UsersRepository implements IUsersRepository {
             .andWhere("user.isAdmin IS FALSE")
             .andWhere("user.active IS TRUE")
             .getMany();
+        return result as unknown as IDataUsersDTO[];
     }
 
     async listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]> {
-        return await this.baseRepository
+        const result = await this.baseRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.individualData", "individual")
             .leftJoinAndSelect("user.companyData", "company")
@@ -198,10 +199,20 @@ class UsersRepository implements IUsersRepository {
                 })
             )
             .getMany();
+        return result as unknown as IDataUsersDTO[];
     }
     
+    async updatePassword(id: string, passwordHash: string): Promise<void> {
+        await this.baseRepository
+            .createQueryBuilder()
+            .update('users')
+            .set({ password: passwordHash })
+            .where("id = :id", { id })
+            .execute();
+    }
+
     async updateUstatus(id: string, active: boolean): Promise<void>{
-        return await this.baseRepository
+        await this.baseRepository
             .createQueryBuilder()
             .update('users')
             .set({
@@ -212,7 +223,7 @@ class UsersRepository implements IUsersRepository {
     }
 
     async listAllUsersForGenerate(): Promise<IDataUsersDTO[]> {
-        return await this.baseRepository
+        const result = await this.baseRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.individualData", "individual")
             .leftJoinAndSelect("user.companyData", "company")
@@ -236,15 +247,17 @@ class UsersRepository implements IUsersRepository {
             ])
             .where("user.isAdmin IS FALSE")
             .getMany();
+        return result as unknown as IDataUsersDTO[];
     }
 
     async getCategoriesInterest(id: string): Promise<string> {
-        return await this.baseRepository
+        const result = await this.baseRepository
             .createQueryBuilder("user")
             .leftJoinAndSelect("user.individualData", "individual")
             .select(['individual.categories_interest'])
             .where("user.id = :id", { id })
             .getRawOne();
+        return result as string;
     }
 
 }

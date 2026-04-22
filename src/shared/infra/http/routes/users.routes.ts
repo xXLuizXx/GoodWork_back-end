@@ -10,6 +10,9 @@ import { ProfileUserController } from "../../../../modules/accounts/useCases/pro
 import { ListUsersForCompanyController } from "../../../../modules/accounts/useCases/listUsers/ListUsersForCompanyController";
 import { ListUsersForStringController } from "../../../../modules/accounts/useCases/listUsersForString/ListUsersForStringController";
 import { UpdateStatusUserController } from "../../../../modules/accounts/useCases/updateStatusUser/UpdateStatusUserController";
+import { ForgotPasswordController } from "../../../../modules/accounts/useCases/forgotPassword/ForgotPasswordController";
+import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
+import { VerifyAccountController } from "../../../../modules/accounts/useCases/verifyAccount/VerifyAccountController";
 
 const usersRoutes = Router();
 const createUserController = new CreateUserController;
@@ -21,6 +24,9 @@ const uploadCurriculum = multer(uploadConfig.upload("./tmp/curriculums/curriculu
 const listUsersForCompanyController = new ListUsersForCompanyController;
 const listUsersForStringController = new ListUsersForStringController;
 const updateStatusUserController = new UpdateStatusUserController;
+const forgotPasswordController = new ForgotPasswordController;
+const resetPasswordController = new ResetPasswordController;
+const verifyAccountController = new VerifyAccountController;
 
 usersRoutes.post("/", uploadCurriculum.single("curriculum"), createUserController.handle);
 usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), updateUserAvatarController.handle);
@@ -29,5 +35,9 @@ usersRoutes.patch("/profile/updateData", ensureAuthenticated, updateDataProfileU
 usersRoutes.post("/getAllUsers", ensureAuthenticated, ensureUserCompany, listUsersForCompanyController.listAllUsersForCompany);
 usersRoutes.post("/getAllUsersSearch", ensureAuthenticated, ensureUserCompany, listUsersForStringController.listAllUsersSearch);
 usersRoutes.patch("/updateStatusUser", ensureAuthenticated, ensureAdmin, updateStatusUserController.updateStatus);
+
+usersRoutes.post("/forgot-password", forgotPasswordController.handle);
+usersRoutes.post("/reset-password", resetPasswordController.handle);
+usersRoutes.get("/verify-account", verifyAccountController.handle);
 
 export { usersRoutes }
