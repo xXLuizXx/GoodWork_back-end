@@ -7,6 +7,8 @@ interface IApplicationRepository{
     listApplications(job_id: string): Promise<Application[]>;
     aproveApplication(id: string, data: IApproveApplicationDTO): Promise<void>;
     findById(id: string): Promise<Application | undefined>;
+    findApplicationsByUser(id: string): Promise<Application[]>;
+    setHired(application_id: string, hired: boolean | null): Promise<void>;
 }
 
 export type { IApplicationRepository }

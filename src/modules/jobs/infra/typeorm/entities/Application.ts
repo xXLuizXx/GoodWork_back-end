@@ -26,6 +26,9 @@ class Application {
     @Column({ type: "boolean", nullable: true, default: null })
     application_approved: boolean | null;
 
+    @Column({ type: "boolean", nullable: true, default: null })
+    hired: boolean | null;
+
     @CreateDateColumn()
     created_at: Date;
 
@@ -33,6 +36,7 @@ class Application {
         if (!this.id) {
             this.id = uuidV4();
             this.application_approved = null;
+            this.hired = null;
         }
     }
 }

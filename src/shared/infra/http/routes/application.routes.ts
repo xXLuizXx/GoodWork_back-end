@@ -6,15 +6,18 @@ import { ListApplicationVacancyCompanyController } from "../../../../modules/job
 import { AproveApplicationsVacancyController } from "../../../../modules/jobs/useCases/aproveApplications/AproveApplicationsVacancyController";
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
+import { GetApplicationsForUserController } from "../../../../modules/jobs/useCases/getApplicationsForUser/GetApplicationsForUserController";
 
 const applicationRoutes = Router();
 const createAppliationJobController = new CreateApplicationJobController;
 const listApplicationVacancyCompanyController = new ListApplicationVacancyCompanyController;
 const aproveApplicationsVacancyController = new AproveApplicationsVacancyController;
+const getApplicationsForUser = new GetApplicationsForUserController;
 const uploadCurriculum = multer(uploadConfig.upload("./tmp/curriculums/curriculums_applications"));
 
 applicationRoutes.post("/", ensureAuthenticated, uploadCurriculum.single("curriculum_user"), createAppliationJobController.createApplication);
 applicationRoutes.get("/getApplications", ensureAuthenticated, ensureUserCompany, listApplicationVacancyCompanyController.getAllApplicationsJob);
 applicationRoutes.patch("/finalizeApplications", ensureAuthenticated, ensureUserCompany, aproveApplicationsVacancyController.aproveAppliations);
+applicationRoutes.get("/myApplications", ensureAuthenticated, getApplicationsForUser.getMyApplications);
 
 export { applicationRoutes }

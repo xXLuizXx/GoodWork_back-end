@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, ManyToOne } from "typeorm";
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, JoinColumn, ManyToOne } from "typeorm";
 import { Application } from "./Application";
 import { v4 as uuidV4 } from "uuid";
 
@@ -38,11 +38,17 @@ class Interview {
     @Column("varchar", { nullable: true })
     notice!: string | null;
 
+    @Column({ type: "text", nullable: true })
+    feedback!: string | null;
+
     @Column("varchar", { default: "scheduled" })
     status!: "scheduled" | "completed" | "cancelled" | "rescheduled";
 
     @CreateDateColumn()
     created_at!: Date;
+
+    @UpdateDateColumn()
+    updated_at!: Date;
     
     constructor() {
         if (!this.id) {

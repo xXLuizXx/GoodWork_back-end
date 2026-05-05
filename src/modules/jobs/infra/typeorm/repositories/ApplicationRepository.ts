@@ -68,13 +68,57 @@ class ApplicationRepository implements IApplicationRepository {
                 "application.user",
                 "application.job_id",
                 "user.name",
+                "user.email",
                 "application.created_at"
             ])
             .where("application.id = :id", { id }).getOne()
 
         return application;
     }
-    
+
+    async findApplicationsByUser(id: string): Promise<Application[]>{
+        const applications = await this.repository.createQueryBuilder("application")
+            .leftJoinAndSelect("application.user", "user")
+            .leftJoinAndSelect("user.individualData", "individualData")
+            .leftJoinAndSelect("application.job", "job")
+            .leftJoin("job.user", "jobUser")
+            .leftJoin("application.interview", "interview")
+            .select([
+                "application.id",
+                "application.application_approved",
+                "application.hired",
+                "application.curriculum_user",
+                "application.created_at",
+                "user.name",
+                "user.avatar",
+                "user.email",
+                "user.telephone",
+                "individualData.functionn",
+                "job.vacancy",
+                "job.contractor",
+                "job.amount_vacancy",
+                "job.vacancy_available",
+                "jobUser.name",
+                "interview.id",
+                "interview.status",
+                "interview.scheduled_date",
+                "interview.interview_type",
+                "interview.feedback",
+            ])
+            .where("application.user_id = :id", { id })
+            .getMany();
+
+        return applications;
+    }
+
+    async setHired(application_id: string, hired: boolean | null): Promise<void> {
+        await this.repository.createQueryBuilder()
+            .update("applications")
+            .set({ hired })
+            .where("id = :id", { id: application_id })
+            .execute();
+    }
+
 }
 
 export { ApplicationRepository }

@@ -30,6 +30,12 @@ export class ApplicationJobs1746654374932 implements MigrationInterface {
                         default: null
                     },
                     {
+                        name: "hired",
+                        type: "boolean",
+                        isNullable: true,
+                        default: null
+                    },
+                    {
                         name: "created_at",
                         type: "timestamp",
                         default: "now()",

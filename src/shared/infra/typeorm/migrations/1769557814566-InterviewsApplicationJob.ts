@@ -57,12 +57,27 @@ export class InterviewsApplicationJob1769557814566 implements MigrationInterface
                         isNullable: true
                     },
                     {
+                        name: "notice",
+                        type: "varchar",
+                        isNullable: true
+                    },
+                    {
+                        name: "feedback",
+                        type: "text",
+                        isNullable: true
+                    },
+                    {
                         name: "status",
                         type: "varchar",
                         default: "'scheduled'"
                     },
                     {
                         name: "created_at",
+                        type: "timestamp",
+                        default: "now()",
+                    },
+                    {
+                        name: "updated_at",
                         type: "timestamp",
                         default: "now()",
                     }

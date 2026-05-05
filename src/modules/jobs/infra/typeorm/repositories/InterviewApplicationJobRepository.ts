@@ -60,11 +60,30 @@ class InterviewApplicationJobReposiory implements IInterviewApplicationJobReposi
 
     async findByInterviewAndCompany(interview_id: string, company_id: string): Promise<Interview | undefined> {
         return this.repository.createQueryBuilder("interview")
-            .innerJoin("interview.application", "application")
-            .innerJoin("application.job", "job")
+            .leftJoinAndSelect("interview.application", "application")
+            .leftJoinAndSelect("application.user", "user")
+            .leftJoinAndSelect("application.job", "job")
             .where("interview.id = :interview_id", { interview_id })
             .andWhere("job.user_id = :company_id", { company_id })
             .getOne();
+    }
+
+    async findByApplicationIdAndCandidate(application_id: string, user_id: string): Promise<Interview | undefined> {
+        return this.repository.createQueryBuilder("interview")
+            .leftJoinAndSelect("interview.application", "application")
+            .leftJoinAndSelect("application.job", "job")
+            .leftJoin("application.user", "user")
+            .where("application.id = :application_id", { application_id })
+            .andWhere("user.id = :user_id", { user_id })
+            .getOne();
+    }
+
+    async completeInterview(interview_id: string, feedback: string | null): Promise<void> {
+        await this.repository.createQueryBuilder()
+            .update(Interview)
+            .set({ status: "completed", feedback })
+            .where("id = :id", { id: interview_id })
+            .execute();
     }
 
     async cancelInterview(interview_id: string, notice: string): Promise<void> {
