@@ -12,6 +12,7 @@ interface ICreateInterviewDTO {
     interviewer_email?: string | null;
     interviewer_position?: string | null;
     notes?: string | null;
+    notice?: string | null;
     status?: "scheduled" | "completed" | "cancelled" | "rescheduled";
 }
 
