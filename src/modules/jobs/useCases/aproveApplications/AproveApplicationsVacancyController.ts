@@ -5,6 +5,11 @@ import { IApproveApplicationDTO } from "../../dtos/IAprovedApplicationsDTO";
 import { ListJobsUseCase } from "../listJobs/ListJobsUseCase";
 import { CloseOrOpenVacancyUseCase } from "../closeVacancy/CloseOrOpenVacancyUseCase";
 
+interface IDecisionEntry {
+    job_id: string;
+    approved: boolean;
+}
+
 class AproveApplicationsVacancyController {
     async aproveAppliations(request: Request, response: Response): Promise<Response> {
         const aproveApplicationsVacancyUseCase = container.resolve(AproveApplicationsVacancyUseCase);
@@ -19,7 +24,7 @@ class AproveApplicationsVacancyController {
             const applications: IApproveApplicationDTO[] = [];
             const selectedCount = payload.selected_count;
 
-            for (const [applicationId, decisionData] of Object.entries(payload.decisions)) {
+            for (const [applicationId, decisionData] of Object.entries(payload.decisions) as [string, IDecisionEntry][]) {
                 const { amount_vacancy } = await listJobsUseCase.executeJob(decisionData.job_id)
                 jobId = decisionData.job_id;
 
@@ -47,7 +52,7 @@ class AproveApplicationsVacancyController {
             
             await aproveApplicationsVacancyUseCase.aproveApplication(applications);
 
-            return response.status(201).json({ message: "Processo de aprovação finalizado com sucesso" });
+            return response.status(201).json({ message: "Processo de aprovação para entrevista finalizado com sucesso" });
         } catch (error) {
             return response.status(400).json({ message: error.message });
         }
