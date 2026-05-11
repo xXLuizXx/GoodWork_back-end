@@ -13,8 +13,10 @@ import "../../container/providers";
 import { AppError } from "../../errors/AppError";
 import { router } from "./routes";
 import cors from "cors";
+import { startVacancyCronJob } from "../cron/vacancyCronJob";
 
 createConnection();
+startVacancyCronJob();
 const app = express();
 
 app.use(helmet());

@@ -158,7 +158,7 @@ class JobsRepository implements IJobsRepository{
             .where("id = :id", { id })
             .getOne();
 
-        return job;
+        return job!;
     }
 
     async aproveJob(id: string, valid: boolean): Promise<boolean> {
@@ -168,7 +168,7 @@ class JobsRepository implements IJobsRepository{
             .where("id = :id", { id })
             .execute();
 
-        return result.affected > 0;
+        return (result.affected ?? 0) > 0;
     }
 
     async allJobsCompany(id: string): Promise<Job[]>{
@@ -226,7 +226,7 @@ class JobsRepository implements IJobsRepository{
             .where('job.id = :id', { id }).andWhere("job.valid_vacancy = true")
             .getOne();
 
-            return job;
+            return job!;
     }
 
     async updateJob(id: string, job: Job): Promise<void> {
@@ -314,6 +314,15 @@ class JobsRepository implements IJobsRepository{
         return job;
     }
     
+    async findExpiredVacancies(): Promise<Job[]> {
+        return this.repository
+            .createQueryBuilder("job")
+            .select(["job.id"])
+            .where("job.closing_date <= NOW()")
+            .andWhere("job.vacancy_available = true")
+            .getMany();
+    }
+
 }
 
 export { JobsRepository }

@@ -16,6 +16,7 @@ interface IJobsRepository{
     closeOrOpen(id: string, valid: boolean): Promise<void>;
     listAllJobs(): Promise<Job[]>
     listAllJobsSearch(search: string): Promise<Job[]>;
+    findExpiredVacancies(): Promise<Job[]>;
 }
 
 export type { IJobsRepository }
