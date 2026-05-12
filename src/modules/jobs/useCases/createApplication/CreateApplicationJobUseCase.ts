@@ -22,14 +22,20 @@ class CreateApplicationJobUseCase{
     async execute({user_id, job_id, curriculum_user}: IRequest): Promise<void>{
         const user = await this.usersRepository.findById(user_id);
         const job = await this.jobsRepository.findById(job_id);
+
         if (!user) {
-          throw new AppError("Usuário não encontrado!");
+            throw new AppError("Usuário não encontrado!");
         }
-    
+
+        const existing = await this.applicationRepository.findByUserAndJob(user_id, job_id);
+        if (existing) {
+            throw new AppError("Você já se candidatou a esta vaga!");
+        }
+
         await this.applicationRepository.create({
-          user,
-          job,
-          curriculum_user
+            user,
+            job,
+            curriculum_user
         });
 
     }

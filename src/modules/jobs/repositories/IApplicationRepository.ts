@@ -9,6 +9,7 @@ interface IApplicationRepository{
     findById(id: string): Promise<Application | undefined>;
     findApplicationsByUser(id: string): Promise<Application[]>;
     setHired(application_id: string, hired: boolean | null): Promise<void>;
+    findByUserAndJob(user_id: string, job_id: string): Promise<Application | undefined>;
 }
 
 export type { IApplicationRepository }

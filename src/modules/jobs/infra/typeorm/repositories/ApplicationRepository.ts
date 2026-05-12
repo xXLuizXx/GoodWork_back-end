@@ -121,6 +121,14 @@ class ApplicationRepository implements IApplicationRepository {
             .execute();
     }
 
+    async findByUserAndJob(user_id: string, job_id: string): Promise<Application | undefined> {
+        return this.repository
+            .createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .andWhere("application.job_id = :job_id", { job_id })
+            .getOne();
+    }
+
 }
 
 export { ApplicationRepository }
