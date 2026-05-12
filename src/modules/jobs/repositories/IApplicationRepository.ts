@@ -10,6 +10,7 @@ interface IApplicationRepository{
     findApplicationsByUser(id: string): Promise<Application[]>;
     setHired(application_id: string, hired: boolean | null): Promise<void>;
     findByUserAndJob(user_id: string, job_id: string): Promise<Application | undefined>;
+    delete(id: string): Promise<void>;
 }
 
 export type { IApplicationRepository }

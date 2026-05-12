@@ -65,7 +65,10 @@ class ApplicationRepository implements IApplicationRepository {
             .leftJoin("job.user", "jobUser")
             .select([
                 "application.id",
+                "application.application_approved",
+                "application.hired",
                 "application.job_id",
+                "user.id",
                 "user.name",
                 "user.email",
                 "job.vacancy",
@@ -96,6 +99,7 @@ class ApplicationRepository implements IApplicationRepository {
                 "user.email",
                 "user.telephone",
                 "individualData.functionn",
+                "job.id",
                 "job.vacancy",
                 "job.contractor",
                 "job.amount_vacancy",
@@ -105,6 +109,10 @@ class ApplicationRepository implements IApplicationRepository {
                 "interview.status",
                 "interview.scheduled_date",
                 "interview.interview_type",
+                "interview.duration_minutes",
+                "interview.location",
+                "interview.meeting_link",
+                "interview.notice",
                 "interview.feedback",
             ])
             .where("application.user_id = :id", { id })
@@ -127,6 +135,10 @@ class ApplicationRepository implements IApplicationRepository {
             .where("application.user_id = :user_id", { user_id })
             .andWhere("application.job_id = :job_id", { job_id })
             .getOne();
+    }
+
+    async delete(id: string): Promise<void> {
+        await this.repository.delete(id);
     }
 
 }
