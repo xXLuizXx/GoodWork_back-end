@@ -27,11 +27,13 @@ class ApplicationRepository implements IApplicationRepository {
             .leftJoinAndSelect("application.user", "user")
             .leftJoinAndSelect("user.individualData", "individualData")
             .leftJoinAndSelect("application.job", "job")
+            .leftJoin("application.interview", "interview")
             .select([
                 "application.id",
                 "application.user",
                 "application.job_id",
                 "application.application_approved",
+                "application.hired",
                 "application.curriculum_user",
                 "user.name",
                 "user.avatar",
@@ -40,12 +42,13 @@ class ApplicationRepository implements IApplicationRepository {
                 "individualData.functionn",
                 "job.amount_vacancy",
                 "job.vacancy_available",
-                "application.created_at"
+                "application.created_at",
+                "interview.id",
+                "interview.status",
             ])
             .where("application.job_id = :job_id", { job_id })
-            //.andWhere("application.application_approved IS NULL")
             .getMany();
-    
+
         return applications;
     }
 
