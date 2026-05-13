@@ -1,9 +1,9 @@
 import { IApplicationRepository } from "../../../../modules/jobs/repositories/IApplicationRepository";
-import { Application } from "../../../../modules/jobs/infra/typeorm/entities/Application";
 import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../../../modules/accounts/repositories/IUsersRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
+import { deleteFile } from "../../../../utils/file";
 
 interface IRequest{
     user_id: string;
@@ -29,6 +29,7 @@ class CreateApplicationJobUseCase{
 
         const existing = await this.applicationRepository.findByUserAndJob(user_id, job_id);
         if (existing) {
+            await deleteFile(`./tmp/curriculums/curriculums_applications/${curriculum_user}`);
             throw new AppError("Você já se candidatou a esta vaga!");
         }
 

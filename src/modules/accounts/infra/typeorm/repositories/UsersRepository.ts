@@ -211,6 +211,15 @@ class UsersRepository implements IUsersRepository {
             .execute();
     }
 
+    async updateCurriculum(id: string, curriculum: string): Promise<void> {
+        await this.individualRepository
+            .createQueryBuilder()
+            .update('individual_users')
+            .set({ curriculum })
+            .where("id = :id", { id })
+            .execute();
+    }
+
     async updateUstatus(id: string, active: boolean): Promise<void>{
         await this.baseRepository
             .createQueryBuilder()

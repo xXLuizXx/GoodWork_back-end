@@ -11,8 +11,9 @@ interface IUsersRepository{
     listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]>;
     updateUstatus(id: string, active: boolean): Promise<void>;
     updatePassword(id: string, passwordHash: string): Promise<void>;
+    updateCurriculum(id: string, curriculum: string): Promise<void>;
     listAllUsersForGenerate(): Promise<IDataUsersDTO[]>;
     getCategoriesInterest(id: string): Promise<string>;
 }
 
-export { IUsersRepository }
+export type { IUsersRepository }

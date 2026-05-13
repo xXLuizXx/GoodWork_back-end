@@ -14,6 +14,7 @@ import { ForgotPasswordController } from "../../../../modules/accounts/useCases/
 import { ResetPasswordController } from "../../../../modules/accounts/useCases/resetPassword/ResetPasswordController";
 import { VerifyAccountController } from "../../../../modules/accounts/useCases/verifyAccount/VerifyAccountController";
 import { ChangePasswordController } from "../../../../modules/accounts/useCases/changePassword/ChangePasswordController";
+import { UpdateUserCurriculumController } from "../../../../modules/accounts/useCases/updateUserCurriculum/UpdateUserCurriculumController";
 
 const usersRoutes = Router();
 const createUserController = new CreateUserController;
@@ -29,12 +30,14 @@ const forgotPasswordController = new ForgotPasswordController;
 const resetPasswordController = new ResetPasswordController;
 const verifyAccountController = new VerifyAccountController;
 const changePasswordController = new ChangePasswordController;
+const updateUserCurriculumController = new UpdateUserCurriculumController;
 
 usersRoutes.post("/", uploadCurriculum.single("curriculum"), createUserController.handle);
 usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), updateUserAvatarController.handle);
 usersRoutes.get("/profile", ensureAuthenticated, getProfilleUser.handle);
 usersRoutes.patch("/profile/updateData", ensureAuthenticated, updateDataProfileUser.updateDataProfileUser);
 usersRoutes.patch("/profile/changePassword", ensureAuthenticated, changePasswordController.handle);
+usersRoutes.patch("/curriculum", ensureAuthenticated, uploadCurriculum.single("curriculum"), updateUserCurriculumController.handle);
 usersRoutes.post("/getAllUsers", ensureAuthenticated, ensureUserCompany, listUsersForCompanyController.listAllUsersForCompany);
 usersRoutes.post("/getAllUsersSearch", ensureAuthenticated, ensureUserCompany, listUsersForStringController.listAllUsersSearch);
 usersRoutes.patch("/updateStatusUser", ensureAuthenticated, ensureAdmin, updateStatusUserController.updateStatus);
