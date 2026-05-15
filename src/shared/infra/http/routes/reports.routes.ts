@@ -2,11 +2,11 @@ import { Router } from "express";
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { ensureAdmin } from "../middlewares/ensureAdmin";
 import { ensureUserCompany } from "../middlewares/ensureUserCompany";
-import { GetAdminOverviewController } from "../../../../modules/jobs/useCases/reports/GetAdminOverviewController";
-import { GetAdminJobsByCategoryController } from "../../../../modules/jobs/useCases/reports/GetAdminJobsByCategoryController";
-import { GetCompanyOverviewController } from "../../../../modules/jobs/useCases/reports/GetCompanyOverviewController";
-import { GetCompanyFunnelController } from "../../../../modules/jobs/useCases/reports/GetCompanyFunnelController";
-import { GetIndividualOverviewController } from "../../../../modules/jobs/useCases/reports/GetIndividualOverviewController";
+import { GetAdminOverviewController } from "../../../../modules/reports/useCases/getAdminOverview/GetAdminOverviewController";
+import { GetAdminJobsByCategoryController } from "../../../../modules/reports/useCases/getAdminJobsByCategory/GetAdminJobsByCategoryController";
+import { GetCompanyOverviewController } from "../../../../modules/reports/useCases/getCompanyOverview/GetCompanyOverviewController";
+import { GetCompanyFunnelController } from "../../../../modules/reports/useCases/getCompanyFunnel/GetCompanyFunnelController";
+import { GetIndividualOverviewController } from "../../../../modules/reports/useCases/getIndividualOverview/GetIndividualOverviewController";
 
 const reportsRoutes = Router();
 

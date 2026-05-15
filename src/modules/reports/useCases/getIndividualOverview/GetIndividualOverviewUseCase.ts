@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
-import { IApplicationRepository } from "../../repositories/IApplicationRepository";
-import { IInterviewApplicationJobRepository } from "../../repositories/IInterviewApplicationJobRepository";
+import { IApplicationRepository } from "../../../jobs/repositories/IApplicationRepository";
+import { IInterviewApplicationJobRepository } from "../../../jobs/repositories/IInterviewApplicationJobRepository";
 
 @injectable()
 class GetIndividualOverviewUseCase {

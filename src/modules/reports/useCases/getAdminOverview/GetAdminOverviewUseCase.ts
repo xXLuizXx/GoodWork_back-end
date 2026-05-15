@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../../accounts/repositories/IUsersRepository";
-import { IJobsRepository } from "../../repositories/IJobsRepository";
-import { IApplicationRepository } from "../../repositories/IApplicationRepository";
+import { IJobsRepository } from "../../../jobs/repositories/IJobsRepository";
+import { IApplicationRepository } from "../../../jobs/repositories/IApplicationRepository";
 
 @injectable()
 class GetAdminOverviewUseCase {

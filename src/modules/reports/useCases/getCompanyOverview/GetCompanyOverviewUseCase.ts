@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { IJobsRepository } from "../../repositories/IJobsRepository";
+import { IJobsRepository } from "../../../jobs/repositories/IJobsRepository";
 
 @injectable()
 class GetCompanyOverviewUseCase {

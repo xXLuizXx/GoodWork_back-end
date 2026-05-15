@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
-import { IApplicationRepository } from "../../repositories/IApplicationRepository";
-import { IInterviewApplicationJobRepository } from "../../repositories/IInterviewApplicationJobRepository";
-import { IJobsRepository } from "../../repositories/IJobsRepository";
+import { IApplicationRepository } from "../../../jobs/repositories/IApplicationRepository";
+import { IInterviewApplicationJobRepository } from "../../../jobs/repositories/IInterviewApplicationJobRepository";
+import { IJobsRepository } from "../../../jobs/repositories/IJobsRepository";
 
 @injectable()
 class GetCompanyFunnelUseCase {
