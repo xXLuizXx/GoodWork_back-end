@@ -50,12 +50,10 @@ class InterviewApplicationJobReposiory implements IInterviewApplicationJobReposi
         return interviews;
     }
 
-    async findByInterview(interview_id: string): Promise<Interview>{
-        const interview = this.repository.createQueryBuilder("interview")
+    async findByInterview(interview_id: string): Promise<Interview | undefined>{
+        return this.repository.createQueryBuilder("interview")
             .where("interview.id = :interview_id", {interview_id})
             .getOne();
-
-        return interview;
     }
 
     async findByInterviewAndCompany(interview_id: string, company_id: string): Promise<Interview | undefined> {
@@ -111,6 +109,36 @@ class InterviewApplicationJobReposiory implements IInterviewApplicationJobReposi
             })
             .where("id = :id", { id: interview.id })
             .execute();
+    }
+
+    async countInterviewStatusByJob(job_id: string): Promise<{ scheduled: number; completed: number; cancelled: number; rescheduled: number }> {
+        const count = (status: string) =>
+            this.repository.createQueryBuilder("interview")
+                .leftJoin("interview.application", "application")
+                .where("application.job_id = :job_id", { job_id })
+                .andWhere("interview.status = :status", { status })
+                .getCount();
+
+        const [scheduled, completed, cancelled, rescheduled] = await Promise.all([
+            count("scheduled"), count("completed"), count("cancelled"), count("rescheduled")
+        ]);
+
+        return { scheduled, completed, cancelled, rescheduled };
+    }
+
+    async getInterviewsByUser(user_id: string): Promise<{ scheduled: number; completed: number; cancelled: number }> {
+        const count = async (status: string) =>
+            this.repository.createQueryBuilder("interview")
+                .leftJoin("interview.application", "application")
+                .where("application.user_id = :user_id", { user_id })
+                .andWhere("interview.status = :status", { status })
+                .getCount();
+
+        const [scheduled, completed, cancelled] = await Promise.all([
+            count("scheduled"), count("completed"), count("cancelled")
+        ]);
+
+        return { scheduled, completed, cancelled };
     }
 }
 

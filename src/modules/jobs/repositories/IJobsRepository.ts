@@ -17,6 +17,9 @@ interface IJobsRepository{
     listAllJobs(): Promise<Job[]>
     listAllJobsSearch(search: string): Promise<Job[]>;
     findExpiredVacancies(): Promise<Job[]>;
+    countJobStats(): Promise<{ total: number; active: number; closed: number; pendingValidation: number }>;
+    countJobsByCategory(): Promise<{ label: string; value: number }[]>;
+    getCompanyJobsStats(company_id: string): Promise<{ total: number; active: number; closed: number; avgDays: number }>;
 }
 
 export type { IJobsRepository }

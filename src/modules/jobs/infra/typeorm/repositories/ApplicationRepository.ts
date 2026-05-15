@@ -144,6 +144,60 @@ class ApplicationRepository implements IApplicationRepository {
         await this.repository.delete(id);
     }
 
+    async countApplicationStats(): Promise<{ total: number; hired: number; hiredRate: number }> {
+        const total = await this.repository.createQueryBuilder("application").getCount();
+        const hired = await this.repository.createQueryBuilder("application")
+            .where("application.hired = true")
+            .getCount();
+        const hiredRate = total > 0 ? Math.round((hired / total) * 1000) / 10 : 0;
+        return { total, hired, hiredRate };
+    }
+
+    async getFunnelByJob(job_id: string): Promise<{ emTriagem: number; aprovados: number; reprovados: number; contratados: number }> {
+        const base = () => this.repository.createQueryBuilder("application")
+            .where("application.job_id = :job_id", { job_id });
+
+        const [emTriagem, aprovados, reprovados, contratados] = await Promise.all([
+            base().andWhere("application.application_approved IS NULL").getCount(),
+            base().andWhere("application.application_approved = true").andWhere("application.hired IS NULL").getCount(),
+            base().andWhere("application.application_approved = false").getCount(),
+            base().andWhere("application.hired = true").getCount(),
+        ]);
+
+        return { emTriagem, aprovados, reprovados, contratados };
+    }
+
+    async getIndividualStats(user_id: string): Promise<{ total: number; emTriagem: number; aprovados: number; reprovados: number; contratados: number; approvalRate: number }> {
+        const total = await this.repository.createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .getCount();
+
+        const emTriagem = await this.repository.createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .andWhere("application.application_approved IS NULL")
+            .getCount();
+
+        const aprovados = await this.repository.createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .andWhere("application.application_approved = true")
+            .andWhere("application.hired IS NULL")
+            .getCount();
+
+        const reprovados = await this.repository.createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .andWhere("application.application_approved = false")
+            .getCount();
+
+        const contratados = await this.repository.createQueryBuilder("application")
+            .where("application.user_id = :user_id", { user_id })
+            .andWhere("application.hired = true")
+            .getCount();
+
+        const approvalRate = total > 0 ? Math.round((aprovados / total) * 1000) / 10 : 0;
+
+        return { total, emTriagem, aprovados, reprovados, contratados, approvalRate };
+    }
+
 }
 
 export { ApplicationRepository }

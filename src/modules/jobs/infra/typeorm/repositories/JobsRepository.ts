@@ -323,6 +323,61 @@ class JobsRepository implements IJobsRepository{
             .getMany();
     }
 
+    async countJobStats(): Promise<{ total: number; active: number; closed: number; pendingValidation: number }> {
+        const total = await this.repository.createQueryBuilder("job")
+            .where("job.valid_vacancy = true")
+            .getCount();
+
+        const active = await this.repository.createQueryBuilder("job")
+            .where("job.valid_vacancy = true")
+            .andWhere("job.vacancy_available = true")
+            .getCount();
+
+        const closed = await this.repository.createQueryBuilder("job")
+            .where("job.valid_vacancy = true")
+            .andWhere("job.vacancy_available = false")
+            .getCount();
+
+        const pendingValidation = await this.repository.createQueryBuilder("job")
+            .where("job.valid_vacancy IS NULL")
+            .getCount();
+
+        return { total, active, closed, pendingValidation };
+    }
+
+    async countJobsByCategory(): Promise<{ label: string; value: number }[]> {
+        const result = await this.repository.createQueryBuilder("job")
+            .leftJoin("job.category", "category")
+            .select("category.name", "label")
+            .addSelect("COUNT(job.id)", "value")
+            .where("job.valid_vacancy = true")
+            .groupBy("category.name")
+            .getRawMany();
+
+        return result.map(r => ({ label: r.label, value: Number(r.value) }));
+    }
+
+    async getCompanyJobsStats(company_id: string): Promise<{ total: number; active: number; closed: number; avgDays: number }> {
+        const jobs = await this.repository.createQueryBuilder("job")
+            .select(["job.vacancy_available", "job.created_at", "job.closing_date"])
+            .where("job.user_id = :company_id", { company_id })
+            .andWhere("job.valid_vacancy = true")
+            .getMany();
+
+        const total = jobs.length;
+        const active = jobs.filter(j => j.vacancy_available).length;
+        const closed = jobs.filter(j => !j.vacancy_available).length;
+
+        const avgDays = total > 0
+            ? Math.round(jobs.reduce((acc, j) => {
+                const diff = (new Date(j.closing_date).getTime() - new Date(j.created_at).getTime()) / (1000 * 60 * 60 * 24);
+                return acc + diff;
+            }, 0) / total)
+            : 0;
+
+        return { total, active, closed, avgDays };
+    }
+
 }
 
 export { JobsRepository }

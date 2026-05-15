@@ -211,6 +211,20 @@ class UsersRepository implements IUsersRepository {
             .execute();
     }
 
+    async countByType(): Promise<{ total: number; individual: number; company: number }> {
+        const individual = await this.baseRepository.createQueryBuilder("user")
+            .where("user.user_type = :type", { type: "individual" })
+            .andWhere("user.isAdmin = false")
+            .getCount();
+
+        const company = await this.baseRepository.createQueryBuilder("user")
+            .where("user.user_type = :type", { type: "company" })
+            .andWhere("user.isAdmin = false")
+            .getCount();
+
+        return { total: individual + company, individual, company };
+    }
+
     async updateCurriculum(id: string, curriculum: string): Promise<void> {
         await this.individualRepository
             .createQueryBuilder()

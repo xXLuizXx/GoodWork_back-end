@@ -11,6 +11,9 @@ interface IApplicationRepository{
     setHired(application_id: string, hired: boolean | null): Promise<void>;
     findByUserAndJob(user_id: string, job_id: string): Promise<Application | undefined>;
     delete(id: string): Promise<void>;
+    countApplicationStats(): Promise<{ total: number; hired: number; hiredRate: number }>;
+    getFunnelByJob(job_id: string): Promise<{ emTriagem: number; aprovados: number; reprovados: number; contratados: number }>;
+    getIndividualStats(user_id: string): Promise<{ total: number; emTriagem: number; aprovados: number; reprovados: number; contratados: number; approvalRate: number }>;
 }
 
 export type { IApplicationRepository }
