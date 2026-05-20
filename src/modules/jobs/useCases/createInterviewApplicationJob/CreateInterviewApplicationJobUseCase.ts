@@ -6,6 +6,7 @@ import { IApplicationRepository } from "../../../../modules/jobs/repositories/IA
 import { AppError } from "../../../../shared/errors/AppError";
 import { Application } from "modules/jobs/infra/typeorm/entities/Application";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
+import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -16,7 +17,8 @@ class CreateInterviewApplicationJobUseCase{
     constructor(
         @inject("InterviewApplicationJobRepository") private interviewAppicationJobRepository: IInterviewApplicationJobRepository,
         @inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
-        @inject("MailRepository") private mailProvider: IMailProvider
+        @inject("MailRepository") private mailProvider: IMailProvider,
+        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
     ){};
 
     async execute(data: ICreateInterviewDTO | ICreateInterviewDTO[], batchSize: number = 10): Promise<void> {
@@ -56,6 +58,15 @@ class CreateInterviewApplicationJobUseCase{
                     }
 
                     await this.interviewAppicationJobRepository.create({ ...interview, application });
+
+                    await this.notificationsRepository.create({
+                        user_id: application.user.id,
+                        type: "interview_scheduled",
+                        title: "Entrevista agendada",
+                        body: `Sua entrevista para ${application.job.vacancy} foi agendada.`,
+                        resource_id: application.id,
+                        resource_type: "application",
+                    });
 
                     const templatePath = path.resolve("src", "views", "emails", "interview-scheduled.hbs");
                     const scheduledDate = new Date(interview.scheduled_date).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });

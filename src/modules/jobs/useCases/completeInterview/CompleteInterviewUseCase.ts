@@ -4,6 +4,7 @@ import { IInterviewApplicationJobRepository } from "../../../../modules/jobs/rep
 import { IApplicationRepository } from "../../../../modules/jobs/repositories/IApplicationRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
+import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -21,7 +22,8 @@ class CompleteInterviewUseCase {
     constructor(
         @inject("InterviewApplicationJobRepository") private interviewApplicationJobRepository: IInterviewApplicationJobRepository,
         @inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
-        @inject("MailRepository") private mailProvider: IMailProvider
+        @inject("MailRepository") private mailProvider: IMailProvider,
+        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
     ) {};
 
     async execute({ interview_id, feedback, hired }: ICompleteInterviewDTO, company_id: string): Promise<void> {
@@ -49,6 +51,14 @@ class CompleteInterviewUseCase {
                     feedback: feedback ?? null,
                 },
                 path: templatePath,
+            });
+            await this.notificationsRepository.create({
+                user_id: interview.application.user.id,
+                type: "hired",
+                title: "Você foi contratado!",
+                body: `Parabéns! Você foi contratado para ${interview.application.job.vacancy}.`,
+                resource_id: interview.application.id,
+                resource_type: "application",
             });
         }
 

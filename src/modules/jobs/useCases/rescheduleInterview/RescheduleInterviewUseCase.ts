@@ -4,6 +4,7 @@ import { inject, injectable } from "tsyringe";
 import { ICreateInterviewDTO } from "../../../../modules/jobs/dtos/ICreateInterviewDTO";
 import { AppError } from "../../../../shared/errors/AppError";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
+import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -14,7 +15,8 @@ class RescheduleInterviewUseCase{
 
     constructor(
         @inject("InterviewApplicationJobRepository") private interviewAppicationJobRepository: IInterviewApplicationJobRepository,
-        @inject("MailRepository") private mailProvider: IMailProvider
+        @inject("MailRepository") private mailProvider: IMailProvider,
+        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
     ){};
 
     async execute(data: ICreateInterviewDTO, interview_id: string, company_id: string): Promise<void>{
@@ -49,6 +51,15 @@ class RescheduleInterviewUseCase{
         interview.status = "rescheduled";
 
         await this.interviewAppicationJobRepository.rescheduleInterview(interview);
+
+        await this.notificationsRepository.create({
+            user_id: interview.application.user.id,
+            type: "interview_rescheduled",
+            title: "Entrevista reagendada",
+            body: `Sua entrevista para ${interview.application.job.vacancy} foi reagendada.`,
+            resource_id: interview.application.id,
+            resource_type: "application",
+        });
 
         const templatePath = path.resolve("src", "views", "emails", "interview-rescheduled.hbs");
         const scheduledDate = new Date(interview.scheduled_date).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });

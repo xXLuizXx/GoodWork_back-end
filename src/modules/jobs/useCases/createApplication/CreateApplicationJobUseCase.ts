@@ -4,6 +4,7 @@ import { IUsersRepository } from "../../../../modules/accounts/repositories/IUse
 import { AppError } from "../../../../shared/errors/AppError";
 import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
 import { deleteFile } from "../../../../utils/file";
+import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IRequest{
     user_id: string;
@@ -16,7 +17,8 @@ class CreateApplicationJobUseCase{
 
     constructor(@inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
                 @inject("UsersRepository") private usersRepository: IUsersRepository,
-                @inject("JobsRepository") private jobsRepository: IJobsRepository
+                @inject("JobsRepository") private jobsRepository: IJobsRepository,
+                @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
                 ) {};
 
     async execute({user_id, job_id, curriculum_user}: IRequest): Promise<void>{
@@ -37,6 +39,15 @@ class CreateApplicationJobUseCase{
             user,
             job,
             curriculum_user
+        });
+
+        await this.notificationsRepository.create({
+            user_id: job.user_id,
+            type: "application_received",
+            title: "Nova candidatura recebida",
+            body: `${user.name} se candidatou para ${job.vacancy}.`,
+            resource_id: job.id,
+            resource_type: "job",
         });
 
     }

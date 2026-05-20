@@ -11,6 +11,7 @@ import { curricullumApplicationRoutes } from "./curricullumApplication.routes";
 import { curricullumUserProfileRoutes } from "./curriculumUserProfile.routes";
 import { interviewRoutes } from "./interview.routes";
 import { reportsRoutes } from "./reports.routes";
+import { notificationsRoutes } from "./notifications.routes";
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.use("/curriculum_application", curricullumApplicationRoutes);
 router.use("/curriculum_user_profile", curricullumUserProfileRoutes);
 router.use("/interview", interviewRoutes);
 router.use("/reports", reportsRoutes);
+router.use("/notifications", notificationsRoutes);
 router.use(authenticateRoutes);
 
 export { router }

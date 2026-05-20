@@ -4,6 +4,7 @@ import { IApplicationRepository } from "../../../../modules/jobs/repositories/IA
 import { inject, injectable } from "tsyringe";
 import { AppError } from "../../../../shared/errors/AppError";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
+import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -21,7 +22,8 @@ class CancelInterviewUseCase {
     constructor(
         @inject("InterviewApplicationJobRepository") private interviewApplicationJobRepository: IInterviewApplicationJobRepository,
         @inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
-        @inject("MailRepository") private mailProvider: IMailProvider
+        @inject("MailRepository") private mailProvider: IMailProvider,
+        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
     ) {};
 
     async execute({ interview_id, notice, company_id }: ICancelInterviewDTO): Promise<void> {
@@ -41,6 +43,15 @@ class CancelInterviewUseCase {
 
         await this.interviewApplicationJobRepository.cancelInterview(interview_id, notice);
         await this.applicationRepository.setHired(interview.application.id, false);
+
+        await this.notificationsRepository.create({
+            user_id: interview.application.user.id,
+            type: "interview_cancelled",
+            title: "Entrevista cancelada",
+            body: `Sua entrevista para ${interview.application.job.vacancy} foi cancelada.`,
+            resource_id: interview.application.id,
+            resource_type: "application",
+        });
 
         const templatePath = path.resolve("src", "views", "emails", "not-hired.hbs");
 
