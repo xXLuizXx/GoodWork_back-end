@@ -34,6 +34,16 @@ const authLimiter = rateLimit({
 app.use("/sessions", authLimiter);
 app.use("/refresh-token", authLimiter);
 
+const publicJobsLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    message: { message: "Muitas requisições. Tente novamente em instantes." },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.use("/jobs/public", publicJobsLimiter);
+
 app.use("api/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(router);
 

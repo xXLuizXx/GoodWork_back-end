@@ -2,6 +2,7 @@ import { Repository, getRepository } from "typeorm";
 import { IJobsRepository } from "../../../../../modules/jobs/repositories/IJobsRepository";
 import { Job } from "../entities/Job";
 import { ICreateJobsDTO } from "modules/jobs/dtos/ICreateJobsDTO";
+import type { IPublicJobDTO } from "../../../dtos/IPublicJobDTO";
 
 class JobsRepository implements IJobsRepository{
     private repository : Repository<Job>;
@@ -376,6 +377,166 @@ class JobsRepository implements IJobsRepository{
             : 0;
 
         return { total, active, closed, avgDays };
+    }
+
+    async listPublic(category_id?: string): Promise<IPublicJobDTO[]> {
+        const qb = this.repository.createQueryBuilder("job")
+            .leftJoin("categories",    "cat", "cat.id = job.category_id")
+            .leftJoin("users",         "usr", "usr.id = job.user_id")
+            .leftJoin("company_users", "cu",  "cu.id  = job.user_id")
+            .select("job.id",                    "id")
+            .addSelect("job.vacancy",             "vacancy")
+            .addSelect("job.contractor",          "contractor")
+            .addSelect("job.description_vacancy", "description_vacancy")
+            .addSelect("job.requirements",        "requirements")
+            .addSelect("job.workload",             "workload")
+            .addSelect("job.location",             "location")
+            .addSelect("job.benefits",             "benefits")
+            .addSelect("job.banner",               "banner")
+            .addSelect("job.amount_vacancy",       "amount_vacancy")
+            .addSelect("job.closing_date",         "closing_date")
+            .addSelect("job.created_at",           "created_at")
+            .addSelect("job.vacancy_available",    "vacancy_available")
+            .addSelect("job.valid_vacancy",        "valid_vacancy")
+            .addSelect("cat.id",                   "cat_id")
+            .addSelect("cat.name",                 "cat_name")
+            .addSelect("cat.description",          "cat_description")
+            .addSelect("usr.id",                   "cmp_id")
+            .addSelect("usr.name",                 "cmp_name")
+            .addSelect("usr.avatar",               "cmp_avatar")
+            .addSelect("cu.business_area",         "cmp_business_area")
+            .where("job.valid_vacancy = true")
+            .andWhere("job.vacancy_available = true")
+            .orderBy("job.created_at", "DESC");
+
+        if (category_id) {
+            qb.andWhere("job.category_id = :category_id", { category_id });
+        }
+
+        const rows = await qb.getRawMany();
+
+        return rows.map(r => ({
+            id:                  r.id,
+            vacancy:             r.vacancy,
+            contractor:          r.contractor,
+            description_vacancy: r.description_vacancy,
+            requirements:        r.requirements,
+            workload:            r.workload,
+            location:            r.location,
+            benefits:            r.benefits,
+            banner:              r.banner,
+            amount_vacancy:      r.amount_vacancy,
+            closing_date:        r.closing_date,
+            created_at:          r.created_at,
+            vacancy_available:   r.vacancy_available,
+            valid_vacancy:       r.valid_vacancy,
+            category: r.cat_id ? { id: r.cat_id, name: r.cat_name, description: r.cat_description } : null,
+            company:  r.cmp_id ? { id: r.cmp_id, name: r.cmp_name, avatar: r.cmp_avatar, business_area: r.cmp_business_area } : null,
+        }));
+    }
+
+    async searchPublic(term: string): Promise<IPublicJobDTO[]> {
+        const rows = await this.repository.createQueryBuilder("job")
+            .leftJoin("categories",    "cat", "cat.id = job.category_id")
+            .leftJoin("users",         "usr", "usr.id = job.user_id")
+            .leftJoin("company_users", "cu",  "cu.id  = job.user_id")
+            .select("job.id",                    "id")
+            .addSelect("job.vacancy",             "vacancy")
+            .addSelect("job.contractor",          "contractor")
+            .addSelect("job.description_vacancy", "description_vacancy")
+            .addSelect("job.requirements",        "requirements")
+            .addSelect("job.workload",             "workload")
+            .addSelect("job.location",             "location")
+            .addSelect("job.benefits",             "benefits")
+            .addSelect("job.banner",               "banner")
+            .addSelect("job.amount_vacancy",       "amount_vacancy")
+            .addSelect("job.closing_date",         "closing_date")
+            .addSelect("job.created_at",           "created_at")
+            .addSelect("job.vacancy_available",    "vacancy_available")
+            .addSelect("job.valid_vacancy",        "valid_vacancy")
+            .addSelect("cat.id",                   "cat_id")
+            .addSelect("cat.name",                 "cat_name")
+            .addSelect("cat.description",          "cat_description")
+            .addSelect("usr.id",                   "cmp_id")
+            .addSelect("usr.name",                 "cmp_name")
+            .addSelect("usr.avatar",               "cmp_avatar")
+            .addSelect("cu.business_area",         "cmp_business_area")
+            .where("job.valid_vacancy = true")
+            .andWhere("job.vacancy_available = true")
+            .andWhere("job.vacancy ILIKE :term", { term: `%${term}%` })
+            .orderBy("job.created_at", "DESC")
+            .getRawMany();
+
+        return rows.map(r => ({
+            id:                  r.id,
+            vacancy:             r.vacancy,
+            contractor:          r.contractor,
+            description_vacancy: r.description_vacancy,
+            requirements:        r.requirements,
+            workload:            r.workload,
+            location:            r.location,
+            benefits:            r.benefits,
+            banner:              r.banner,
+            amount_vacancy:      r.amount_vacancy,
+            closing_date:        r.closing_date,
+            created_at:          r.created_at,
+            vacancy_available:   r.vacancy_available,
+            valid_vacancy:       r.valid_vacancy,
+            category: r.cat_id ? { id: r.cat_id, name: r.cat_name, description: r.cat_description } : null,
+            company:  r.cmp_id ? { id: r.cmp_id, name: r.cmp_name, avatar: r.cmp_avatar, business_area: r.cmp_business_area } : null,
+        }));
+    }
+
+    async findPublicById(id: string): Promise<IPublicJobDTO | null> {
+        const r = await this.repository.createQueryBuilder("job")
+            .leftJoin("categories",    "cat", "cat.id = job.category_id")
+            .leftJoin("users",         "usr", "usr.id = job.user_id")
+            .leftJoin("company_users", "cu",  "cu.id  = job.user_id")
+            .select("job.id",                    "id")
+            .addSelect("job.vacancy",             "vacancy")
+            .addSelect("job.contractor",          "contractor")
+            .addSelect("job.description_vacancy", "description_vacancy")
+            .addSelect("job.requirements",        "requirements")
+            .addSelect("job.workload",             "workload")
+            .addSelect("job.location",             "location")
+            .addSelect("job.benefits",             "benefits")
+            .addSelect("job.banner",               "banner")
+            .addSelect("job.amount_vacancy",       "amount_vacancy")
+            .addSelect("job.closing_date",         "closing_date")
+            .addSelect("job.created_at",           "created_at")
+            .addSelect("job.vacancy_available",    "vacancy_available")
+            .addSelect("job.valid_vacancy",        "valid_vacancy")
+            .addSelect("cat.id",                   "cat_id")
+            .addSelect("cat.name",                 "cat_name")
+            .addSelect("cat.description",          "cat_description")
+            .addSelect("usr.id",                   "cmp_id")
+            .addSelect("usr.name",                 "cmp_name")
+            .addSelect("usr.avatar",               "cmp_avatar")
+            .addSelect("cu.business_area",         "cmp_business_area")
+            .where("job.id = :id", { id })
+            .andWhere("job.valid_vacancy = true")
+            .getRawOne();
+
+        if (!r) return null;
+
+        return {
+            id:                  r.id,
+            vacancy:             r.vacancy,
+            contractor:          r.contractor,
+            description_vacancy: r.description_vacancy,
+            requirements:        r.requirements,
+            workload:            r.workload,
+            location:            r.location,
+            benefits:            r.benefits,
+            banner:              r.banner,
+            amount_vacancy:      r.amount_vacancy,
+            closing_date:        r.closing_date,
+            created_at:          r.created_at,
+            vacancy_available:   r.vacancy_available,
+            valid_vacancy:       r.valid_vacancy,
+            category: r.cat_id ? { id: r.cat_id, name: r.cat_name, description: r.cat_description } : null,
+            company:  r.cmp_id ? { id: r.cmp_id, name: r.cmp_name, avatar: r.cmp_avatar, business_area: r.cmp_business_area } : null,
+        };
     }
 
 }

@@ -1,5 +1,6 @@
 import { ICreateJobsDTO } from "../dtos/ICreateJobsDTO"
 import { Job } from "../infra/typeorm/entities/Job";
+import type { IPublicJobDTO } from "../dtos/IPublicJobDTO";
 
 interface IJobsRepository{
     create(data: ICreateJobsDTO): Promise<Job>;
@@ -20,6 +21,9 @@ interface IJobsRepository{
     countJobStats(): Promise<{ total: number; active: number; closed: number; pendingValidation: number }>;
     countJobsByCategory(): Promise<{ label: string; value: number }[]>;
     getCompanyJobsStats(company_id: string): Promise<{ total: number; active: number; closed: number; avgDays: number }>;
+    listPublic(category_id?: string): Promise<IPublicJobDTO[]>;
+    searchPublic(term: string): Promise<IPublicJobDTO[]>;
+    findPublicById(id: string): Promise<IPublicJobDTO | null>;
 }
 
 export type { IJobsRepository }

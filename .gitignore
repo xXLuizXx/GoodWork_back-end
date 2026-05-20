@@ -4,4 +4,7 @@ tmp/avatar/
 tmp/banners/
 tmp/curriculums/
 .env
+dados.sql
+goodwork_schema.sql
+seed_expansion.sql
 Comandos para iniciar o projeto
