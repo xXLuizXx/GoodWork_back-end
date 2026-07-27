@@ -24,6 +24,12 @@ export class CreateUserToken1633657103223 implements MigrationInterface {
             type: "timestamp",
           },
           {
+            name: "type",
+            type: "varchar",
+            isNullable: false,
+            default: "'refresh_token'",
+          },
+          {
             name: "created_at",
             type: "timestamp",
             default: "now()",
