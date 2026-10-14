@@ -46,6 +46,8 @@ class CloudinaryStorageProvider implements IStorageProvider {
             resource_type: resourceType,
             format: resourceType === "image" ? format : undefined,
             secure: true,
+            // Sem "/v1/" na URL: o Cloudinary só invalida o cache de URLs sem versão ao sobrescrever um arquivo
+            force_version: false,
         });
 
         return { kind: "remote", url };
