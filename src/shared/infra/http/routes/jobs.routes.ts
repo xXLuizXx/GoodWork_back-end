@@ -6,6 +6,7 @@ import { ListJobsController } from "../../../../modules/jobs/useCases/listJobs/L
 import { AproveJobsController } from "../../../../modules/jobs/useCases/aproveJobs/AproveJobsController";
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
+import { persistUpload } from "../middlewares/persistUpload";
 import { ensureUserCompany } from "../middlewares/ensureUserCompany";
 import { CloseOrOpenVacancyController } from "../../../../modules/jobs/useCases/closeVacancy/CloseOrOpenVacancyController";
 import { ListPublicJobsController } from "../../../../modules/jobs/useCases/listPublicJobs/ListPublicJobsController";
@@ -29,7 +30,7 @@ jobsRoutes.get("/public/search", searchPublicJobsController.handle);
 jobsRoutes.get("/public/:id",    getPublicJobController.handle);
 
 // ── Rotas autenticadas ─────────────────────────────────────────────────────
-jobsRoutes.post("/", ensureAuthenticated,  uploadBanner.single("banner"), createJobsController.handle);
+jobsRoutes.post("/", ensureAuthenticated,  uploadBanner.single("banner"), persistUpload("banners"), createJobsController.handle);
 jobsRoutes.get("/list", ensureAuthenticated, listJobsController.handler);
 jobsRoutes.get("/listCategories", ensureAuthenticated, listJobsController.listJobsCategories);
 jobsRoutes.get("/listVacancy", ensureAuthenticated, listJobsController.listJobsVacancy);
@@ -38,7 +39,7 @@ jobsRoutes.get("/listVacancyNotValidated", ensureAuthenticated, listJobsControll
 jobsRoutes.patch("/aproveJob", ensureAuthenticated, ensureAdmin, aproveJobController.aproveJob);
 jobsRoutes.get("/listJobsCompany",ensureAuthenticated, ensureUserCompany, listJobsController.getAllJobsCompany);
 jobsRoutes.get("/getJob",ensureAuthenticated, ensureUserCompany, listJobsController.getJob);
-jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, uploadBanner.single("banner"), listJobsController.updateJob);
+jobsRoutes.patch("/updateJob", ensureAuthenticated, ensureUserCompany, uploadBanner.single("banner"), persistUpload("banners"), listJobsController.updateJob);
 jobsRoutes.patch("/updateStatusJob", ensureAuthenticated, closeOrOpenVacancyController.closeOrOpenVacancy);
 jobsRoutes.get("/listAllJobs", ensureAuthenticated, ensureAdmin, listJobsController.getAllJobs);
 jobsRoutes.get("/listForUserLogged", ensureAuthenticated, listJobsController.getAllJobsForUserLogged);

@@ -58,4 +58,6 @@ app.use((err: Error, _request: Request, response: Response, _next: NextFunction)
     });
 });
 
-app.listen(3333, () => console.log("Servidor rodando na porta 3333"));
+const port = Number(process.env.PORT) || 3333;
+
+app.listen(port, () => console.log(`Servidor rodando na porta ${port}`));

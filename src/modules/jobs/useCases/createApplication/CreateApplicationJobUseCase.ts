@@ -3,7 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../../../modules/accounts/repositories/IUsersRepository";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
-import { deleteFile } from "../../../../utils/file";
+import { IStorageProvider } from "../../../../shared/container/providers/StorageProvider/IStorageProvider";
 import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
 
 interface IRequest{
@@ -18,7 +18,8 @@ class CreateApplicationJobUseCase{
     constructor(@inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
                 @inject("UsersRepository") private usersRepository: IUsersRepository,
                 @inject("JobsRepository") private jobsRepository: IJobsRepository,
-                @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
+                @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository,
+                @inject("StorageProvider") private storageProvider: IStorageProvider
                 ) {};
 
     async execute({user_id, job_id, curriculum_user}: IRequest): Promise<void>{
@@ -31,7 +32,7 @@ class CreateApplicationJobUseCase{
 
         const existing = await this.applicationRepository.findByUserAndJob(user_id, job_id);
         if (existing) {
-            await deleteFile(`./tmp/curriculums/curriculums_applications/${curriculum_user}`);
+            await this.storageProvider.delete(curriculum_user, "curriculums/curriculums_applications");
             throw new AppError("Você já se candidatou a esta vaga!");
         }
 

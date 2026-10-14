@@ -6,6 +6,7 @@ import { ListApplicationVacancyCompanyController } from "../../../../modules/job
 import { AproveApplicationsVacancyController } from "../../../../modules/jobs/useCases/aproveApplications/AproveApplicationsVacancyController";
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
+import { persistUpload } from "../middlewares/persistUpload";
 import { GetApplicationsForUserController } from "../../../../modules/jobs/useCases/getApplicationsForUser/GetApplicationsForUserController";
 import { CheckApplicationController } from "../../../../modules/jobs/useCases/checkApplication/CheckApplicationController";
 import { CancelApplicationController } from "../../../../modules/jobs/useCases/cancelApplication/CancelApplicationController";
@@ -19,7 +20,7 @@ const checkApplicationController = new CheckApplicationController;
 const cancelApplicationController = new CancelApplicationController;
 const uploadCurriculum = multer(uploadConfig.upload("./tmp/curriculums/curriculums_applications"));
 
-applicationRoutes.post("/", ensureAuthenticated, uploadCurriculum.single("curriculum_user"), createAppliationJobController.createApplication);
+applicationRoutes.post("/", ensureAuthenticated, uploadCurriculum.single("curriculum_user"), persistUpload("curriculums/curriculums_applications"), createAppliationJobController.createApplication);
 applicationRoutes.get("/getApplications", ensureAuthenticated, ensureUserCompany, listApplicationVacancyCompanyController.getAllApplicationsJob);
 applicationRoutes.patch("/finalizeApplications", ensureAuthenticated, ensureUserCompany, aproveApplicationsVacancyController.aproveAppliations);
 applicationRoutes.get("/myApplications", ensureAuthenticated, getApplicationsForUser.getMyApplications);

@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { ensureAuthenticated } from "../../http/middlewares/ensureAuthenticated";
-import { GetCurriculumsApllicationsController } from "../../../../modules/jobs/useCases/getCurriculumsApplications/GetCurriculumsApllicationsController";
+import { getCurrilumUserController } from "../../../../modules/accounts/useCases/getCurrilumUser/getCurrilumUserController";
 
 const curricullumUserProfileRoutes = Router();
 
-const getCurriculumsApllicationsController = new GetCurriculumsApllicationsController();
+const getCurriculumUserController = new getCurrilumUserController();
 
-curricullumUserProfileRoutes.get("/:filename", getCurriculumsApllicationsController.handle);
+curricullumUserProfileRoutes.get("/:filename", getCurriculumUserController.handle);
 
 export { curricullumUserProfileRoutes };

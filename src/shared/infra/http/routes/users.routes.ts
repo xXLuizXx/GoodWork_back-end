@@ -3,6 +3,7 @@ import { CreateUserController } from "../../../../modules/accounts/useCases/crea
 import { UpdateUserAvatarController } from "../../../../modules/accounts/useCases/updateUserAvatar/UpdateUserAvatarController";
 import multer from "multer";
 import uploadConfig from "../../../../config/upload";
+import { persistUpload } from "../../../../shared/infra/http/middlewares/persistUpload";
 import { ensureAuthenticated } from "../../../../shared/infra/http/middlewares/ensureAuthenticated";
 import { ensureUserCompany } from "../../../../shared/infra/http/middlewares/ensureUserCompany";
 import { ensureAdmin } from "../../../../shared/infra/http/middlewares/ensureAdmin";
@@ -32,12 +33,12 @@ const verifyAccountController = new VerifyAccountController;
 const changePasswordController = new ChangePasswordController;
 const updateUserCurriculumController = new UpdateUserCurriculumController;
 
-usersRoutes.post("/", uploadCurriculum.single("curriculum"), createUserController.handle);
-usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), updateUserAvatarController.handle);
+usersRoutes.post("/", uploadCurriculum.single("curriculum"), persistUpload("curriculums/curriculums_user_profile"), createUserController.handle);
+usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), persistUpload("avatar"), updateUserAvatarController.handle);
 usersRoutes.get("/profile", ensureAuthenticated, getProfilleUser.handle);
 usersRoutes.patch("/profile/updateData", ensureAuthenticated, updateDataProfileUser.updateDataProfileUser);
 usersRoutes.patch("/profile/changePassword", ensureAuthenticated, changePasswordController.handle);
-usersRoutes.patch("/curriculum", ensureAuthenticated, uploadCurriculum.single("curriculum"), updateUserCurriculumController.handle);
+usersRoutes.patch("/curriculum", ensureAuthenticated, uploadCurriculum.single("curriculum"), persistUpload("curriculums/curriculums_user_profile"), updateUserCurriculumController.handle);
 usersRoutes.post("/getAllUsers", ensureAuthenticated, ensureUserCompany, listUsersForCompanyController.listAllUsersForCompany);
 usersRoutes.post("/getAllUsersSearch", ensureAuthenticated, ensureUserCompany, listUsersForStringController.listAllUsersSearch);
 usersRoutes.patch("/updateStatusUser", ensureAuthenticated, ensureAdmin, updateStatusUserController.updateStatus);

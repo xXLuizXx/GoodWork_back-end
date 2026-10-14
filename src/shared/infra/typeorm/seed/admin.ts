@@ -4,7 +4,7 @@ import createConnection from "../index";
 
 //Comando criar o seed de admn yarnpkg seed:admin
 async function create(){
-    const connection = await createConnection("localhost");
+    const connection = await createConnection();
     const id = uuidV4();
     const password = await hash("adm%1234", 8);
 
