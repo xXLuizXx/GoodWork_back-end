@@ -91,6 +91,21 @@ class UsersRepository implements IUsersRepository {
         return (user ? plainToClass(User, user) : null) as User;
     }
 
+    async findByIdentifier(identifier: string): Promise<User> {
+        // Compara só os dígitos: o CPF/CNPJ pode estar salvo com ou sem máscara
+        const digits = identifier.replace(/\D/g, "");
+
+        return this.baseRepository
+            .createQueryBuilder("user")
+            .where("regexp_replace(user.identifier, '[^0-9]', '', 'g') = :digits", { digits })
+            .getOne();
+    }
+
+    async deleteById(id: string): Promise<void> {
+        // individual_users, company_users e user_token são removidos em cascata
+        await this.baseRepository.delete(id);
+    }
+
     async findById(id: string): Promise<User> {
         const user = await this.baseRepository
             .createQueryBuilder("user")

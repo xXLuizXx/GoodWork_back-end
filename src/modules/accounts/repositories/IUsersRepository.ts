@@ -5,6 +5,8 @@ import { User } from "../infra/typeorm/entities/User";
 interface IUsersRepository{
     create(data: ICreateUsersDTO): Promise<void>;
     findByEmail(email: string): Promise<User>;
+    findByIdentifier(identifier: string): Promise<User>;
+    deleteById(id: string): Promise<void>;
     findById(id: string): Promise<User>;
     update(user: User, profileData: any): Promise<void>;
     listAllUsers(id: string): Promise<IDataUsersDTO[]>;
