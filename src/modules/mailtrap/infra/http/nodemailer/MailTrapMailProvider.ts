@@ -31,7 +31,8 @@ class MailTrapMailProvider implements IMailRepository {
 
         await this.client.sendMail({
             to,
-            from: "GoodWork <noreply@goodwork.com>",
+            // Em produção (Brevo) precisa ser um remetente verificado na conta
+            from: process.env.MAIL_FROM || "GoodWork <noreply@goodwork.com>",
             subject,
             html: templateHTML,
         });

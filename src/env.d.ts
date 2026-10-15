@@ -4,5 +4,6 @@ declare namespace NodeJS {
       MAILTRAP_PORT: string;
       MAILTRAP_USER: string;
       MAILTRAP_PASS: string;
+      MAIL_FROM?: string;
     }
 }
