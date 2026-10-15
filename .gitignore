@@ -8,3 +8,4 @@ dados.sql
 goodwork_schema.sql
 seed_expansion.sql
 Comandos para iniciar o projeto
+backups/*.sql
