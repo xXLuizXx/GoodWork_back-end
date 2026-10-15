@@ -18,8 +18,8 @@ class IndividualUser {
     @Column({ default: false })
     is_employee: boolean;
 
-    @Column()
-    curriculum: string;
+    @Column({ nullable: true })
+    curriculum: string | null;
 
     @Column()
     categories_interest: string;

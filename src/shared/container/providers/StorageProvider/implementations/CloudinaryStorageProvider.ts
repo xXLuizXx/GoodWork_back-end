@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import fs from "fs";
 import { basename, extname, resolve } from "path";
 import { v2 as cloudinary } from "cloudinary";
@@ -39,18 +40,33 @@ class CloudinaryStorageProvider implements IStorageProvider {
         await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
     }
 
+    async copy(file: string, from: StorageFolder, to: StorageFolder): Promise<string> {
+        const newFile = `${crypto.randomBytes(16).toString("hex")}${extname(basename(file))}`;
+        const target = this.getAsset(newFile, to);
+
+        // O Cloudinary aceita uma URL como origem do upload
+        await cloudinary.uploader.upload(this.getUrl(file, from), {
+            public_id: target.publicId,
+            resource_type: target.resourceType,
+        });
+
+        return newFile;
+    }
+
     async getFile(file: string, folder: StorageFolder): Promise<IStoredFile | null> {
+        return { kind: "remote", url: this.getUrl(file, folder) };
+    }
+
+    private getUrl(file: string, folder: StorageFolder): string {
         const { publicId, resourceType, format } = this.getAsset(file, folder);
 
-        const url = cloudinary.url(publicId, {
+        return cloudinary.url(publicId, {
             resource_type: resourceType,
             format: resourceType === "image" ? format : undefined,
             secure: true,
             // Sem "/v1/" na URL: o Cloudinary só invalida o cache de URLs sem versão ao sobrescrever um arquivo
             force_version: false,
         });
-
-        return { kind: "remote", url };
     }
 
     // O banco guarda apenas "<hash>.<ext>"; o public_id é derivado dele para não exigir migration.

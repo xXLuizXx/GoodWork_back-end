@@ -1,5 +1,6 @@
 import fs from "fs";
-import { basename, resolve } from "path";
+import crypto from "crypto";
+import { basename, extname, resolve } from "path";
 import { tmpFolder } from "../../../../../config/upload";
 import { IStorageProvider, IStoredFile, StorageFolder } from "../IStorageProvider";
 
@@ -19,6 +20,14 @@ class DiskStorageProvider implements IStorageProvider {
         }
 
         await fs.promises.unlink(filePath);
+    }
+
+    async copy(file: string, from: StorageFolder, to: StorageFolder): Promise<string> {
+        const newFile = `${crypto.randomBytes(16).toString("hex")}${extname(basename(file))}`;
+
+        await fs.promises.copyFile(this.resolvePath(file, from), this.resolvePath(newFile, to));
+
+        return newFile;
     }
 
     async getFile(file: string, folder: StorageFolder): Promise<IStoredFile | null> {

@@ -84,10 +84,6 @@ class CreateUserUseCase {
             await reject("Preencha sexo, função e habilidades.");
         }
 
-        if (user_type === "individual" && !curriculum) {
-            await reject("Envie o currículo em PDF.");
-        }
-
         if (user_type === "company" && !business_area) {
             await reject("Informe a área de atuação da empresa.");
         }
