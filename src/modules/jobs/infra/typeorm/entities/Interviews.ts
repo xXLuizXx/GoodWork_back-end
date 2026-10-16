@@ -14,7 +14,7 @@ class Interview {
     @Column("varchar")
     interview_type!: "presencial" | "online";
 
-    @Column("timestamp")
+    @Column("timestamptz")
     scheduled_date!: Date;
 
     @Column("integer", { default: 30 })

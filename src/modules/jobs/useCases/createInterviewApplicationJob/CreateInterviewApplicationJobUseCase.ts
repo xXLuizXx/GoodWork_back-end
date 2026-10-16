@@ -7,6 +7,7 @@ import { AppError } from "../../../../shared/errors/AppError";
 import { Application } from "modules/jobs/infra/typeorm/entities/Application";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
 import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
+import { parseDateTime } from "../../../../utils/parseDateTime";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -38,6 +39,8 @@ class CreateInterviewApplicationJobUseCase{
                     if (existingInterview) {
                         throw new AppError("Já existe uma entrevista marcada para essa candidatura!");
                     }
+
+                    interview.scheduled_date = parseDateTime(interview.scheduled_date).toISOString();
 
                     if (new Date(interview.scheduled_date) < new Date()) {
                         throw new AppError("A data da entrevista não pode ser no passado!");

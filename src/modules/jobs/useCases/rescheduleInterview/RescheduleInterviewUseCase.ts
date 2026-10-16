@@ -5,6 +5,7 @@ import { ICreateInterviewDTO } from "../../../../modules/jobs/dtos/ICreateInterv
 import { AppError } from "../../../../shared/errors/AppError";
 import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
 import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
+import { parseDateTime } from "../../../../utils/parseDateTime";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -35,12 +36,14 @@ class RescheduleInterviewUseCase{
             throw new AppError("Favor inserir um aviso!");
         }
 
-        if(data.scheduled_date && new Date(data.scheduled_date) < new Date()){
+        const scheduledDateInput = data.scheduled_date ? parseDateTime(data.scheduled_date) : null;
+
+        if(scheduledDateInput && scheduledDateInput < new Date()){
             throw new AppError("A data da entrevista não pode ser no passado!");
         }
 
         interview.interview_type = data.interview_type ?? interview.interview_type;
-        interview.scheduled_date = data.scheduled_date as unknown as Date ?? interview.scheduled_date;
+        interview.scheduled_date = scheduledDateInput ?? interview.scheduled_date;
         interview.duration_minutes = data.duration_minutes ?? interview.duration_minutes;
         interview.location = data.location ?? interview.location;
         interview.meeting_link = data.meeting_link ?? interview.meeting_link;
