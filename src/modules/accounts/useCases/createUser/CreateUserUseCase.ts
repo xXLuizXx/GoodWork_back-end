@@ -98,38 +98,48 @@ class CreateUserUseCase {
 
         const passwordHash = await hash(password, 8);
 
-        if (user_type === "individual") {
-            await this.usersRepository.create({
-                name,
-                road,
-                number,
-                identifier,
-                neighborhood,
-                telephone,
-                email,
-                password: passwordHash,
-                user_type,
-                sex,
-                is_employee,
-                functionn,
-                ability,
-                curriculum,
-                categories_interest,
-            });
-            
-        } else {
-            await this.usersRepository.create({
-                name,
-                road,
-                number,
-                identifier,
-                neighborhood,
-                telephone,
-                email,
-                password: passwordHash,
-                user_type,
-                business_area,
-            });
+        try {
+            if (user_type === "individual") {
+                await this.usersRepository.create({
+                    name,
+                    road,
+                    number,
+                    identifier,
+                    neighborhood,
+                    telephone,
+                    email,
+                    password: passwordHash,
+                    user_type,
+                    sex,
+                    is_employee,
+                    functionn,
+                    ability,
+                    curriculum,
+                    categories_interest,
+                });
+
+            } else {
+                await this.usersRepository.create({
+                    name,
+                    road,
+                    number,
+                    identifier,
+                    neighborhood,
+                    telephone,
+                    email,
+                    password: passwordHash,
+                    user_type,
+                    business_area,
+                });
+            }
+        } catch (err) {
+            // Dois cadastros simultâneos passam pelas buscas acima; os índices únicos do banco barram o segundo
+            if (err?.code === "23505") {
+                await reject(err.constraint === "UQ_users_identifier_digits"
+                    ? (user_type === "company" ? "Já existe uma conta com este CNPJ." : "Já existe uma conta com este CPF.")
+                    : "Já existe uma conta com este e-mail.");
+            }
+            throw err;
         }
 
         const user = await this.usersRepository.findByEmail(email);
