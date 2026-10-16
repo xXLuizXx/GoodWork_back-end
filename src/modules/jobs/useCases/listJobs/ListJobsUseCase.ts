@@ -15,7 +15,7 @@ interface IJob {
     benefits: string;
     vacancy_available: boolean;
     amount_vacancy: number;
-    closing_date: Date;
+    closing_date: string;
     banner: string;
 }
 @injectable()

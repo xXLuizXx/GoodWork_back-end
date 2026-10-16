@@ -58,8 +58,8 @@ class Job {
     @Column()
     amount_vacancy: number;
 
-    @Column()
-    closing_date: Date;
+    @Column("date")
+    closing_date: string;
 
     constructor(){
         if(!this.id){

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { ListJobsUseCase } from "./ListJobsUseCase";
 import { container } from "tsyringe";
+import { parseDateOnly, todayInSaoPaulo } from "../../../../utils/dateOnly";
 
 class ListJobsController{
     async handler(request: Request, response: Response):Promise<Response> {
@@ -81,7 +82,6 @@ class ListJobsController{
 
         try {
             const updatedAtDate = new Date(updated_at);
-            const closingDate = new Date(closing_date);
 
             const updateData = {
                 id: id,
@@ -95,12 +95,13 @@ class ListJobsController{
                 benefits, 
                 vacancy_available: vacancy_available === 'true',
                 amount_vacancy,
-                closing_date,
+                closing_date: parseDateOnly(closing_date),
                 updated_at: updatedAtDate.toISOString(),
                 banner: banner
             };
 
-            if (closingDate > updatedAtDate && updateData.vacancy_available === false) {
+            // Prorrogar a data de uma vaga encerrada a reabre; ela vale até o fim do dia de encerramento
+            if (updateData.closing_date >= todayInSaoPaulo() && updateData.vacancy_available === false) {
                 updateData.vacancy_available = true;
             }
 

@@ -2,6 +2,7 @@ import { AppError } from "../../../../shared/errors/AppError";
 import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
 import { Job } from "../../../../modules/jobs/infra/typeorm/entities/Job";
 import { inject, injectable } from "tsyringe"
+import { parseDateOnly } from "../../../../utils/dateOnly";
 
 interface IRequest {
     vacancy: string;
@@ -15,7 +16,7 @@ interface IRequest {
     category_id: string;
     user_id: string;
     amount_vacancy: number
-    closing_date: Date;
+    closing_date: string;
 }
 
 
@@ -38,6 +39,8 @@ class CreateJobUseCase{
         amount_vacancy,
         closing_date
     }: IRequest): Promise<Job> {
+        parseDateOnly(closing_date);
+
         const job = await this.jobsRepository.create({
             vacancy,
             contractor,

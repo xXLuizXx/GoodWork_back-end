@@ -244,7 +244,7 @@ class JobsRepository implements IJobsRepository{
                 benefits: job.benefits,
                 banner: job.banner,
                 amount_vacancy: job.amount_vacancy,
-                closing_date: () => `TO_TIMESTAMP('${job.closing_date}', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
+                closing_date: job.closing_date,
                 category_id: job.category_id,
                 vacancy_available: job.vacancy_available
             })
@@ -319,7 +319,8 @@ class JobsRepository implements IJobsRepository{
         return this.repository
             .createQueryBuilder("job")
             .select(["job.id"])
-            .where("job.closing_date <= NOW()")
+            // A vaga fica aberta durante todo o dia de encerramento (horário de Brasília)
+            .where("job.closing_date < (NOW() AT TIME ZONE 'America/Sao_Paulo')::date")
             .andWhere("job.vacancy_available = true")
             .getMany();
     }

@@ -9,7 +9,7 @@ interface IPublicJobDTO {
     benefits: string;
     banner: string;
     amount_vacancy: number;
-    closing_date: Date;
+    closing_date: string;
     created_at: Date;
     vacancy_available: boolean;
     valid_vacancy: boolean | null;

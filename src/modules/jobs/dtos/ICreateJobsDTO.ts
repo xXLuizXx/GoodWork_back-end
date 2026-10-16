@@ -10,7 +10,7 @@ interface ICreateJobsDTO{
     category_id: string;
     user_id: string;
     amount_vacancy: number;
-    closing_date: Date;
+    closing_date: string;
 }
 
 export { ICreateJobsDTO }
