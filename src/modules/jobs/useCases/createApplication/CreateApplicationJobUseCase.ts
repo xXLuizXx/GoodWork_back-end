@@ -4,7 +4,7 @@ import { IUsersRepository } from "../../../../modules/accounts/repositories/IUse
 import { AppError } from "../../../../shared/errors/AppError";
 import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepository";
 import { IStorageProvider } from "../../../../shared/container/providers/StorageProvider/IStorageProvider";
-import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
+import { NotifyUserUseCase } from "../../../notifications/useCases/notifyUser/NotifyUserUseCase";
 
 interface IRequest{
     user_id: string;
@@ -18,7 +18,7 @@ class CreateApplicationJobUseCase{
     constructor(@inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
                 @inject("UsersRepository") private usersRepository: IUsersRepository,
                 @inject("JobsRepository") private jobsRepository: IJobsRepository,
-                @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository,
+                @inject(NotifyUserUseCase) private notifyUser: NotifyUserUseCase,
                 @inject("StorageProvider") private storageProvider: IStorageProvider
                 ) {};
 
@@ -62,7 +62,7 @@ class CreateApplicationJobUseCase{
             curriculum_user: curriculum
         });
 
-        await this.notificationsRepository.create({
+        await this.notifyUser.execute({
             user_id: job.user_id,
             type: "application_received",
             title: "Nova candidatura recebida",

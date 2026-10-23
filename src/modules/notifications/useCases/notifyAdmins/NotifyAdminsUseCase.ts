@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IUsersRepository } from "../../../accounts/repositories/IUsersRepository";
 import { ICreateNotificationDTO } from "../../dtos/ICreateNotificationDTO";
-import { INotificationsRepository } from "../../repositories/INotificationsRepository";
+import { NotifyUserUseCase } from "../notifyUser/NotifyUserUseCase";
 
 type IAdminNotification = Omit<ICreateNotificationDTO, "user_id">;
 
@@ -9,10 +9,10 @@ type IAdminNotification = Omit<ICreateNotificationDTO, "user_id">;
 class NotifyAdminsUseCase {
     constructor(
         @inject("UsersRepository") private usersRepository: IUsersRepository,
-        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
+        @inject(NotifyUserUseCase) private notifyUser: NotifyUserUseCase
     ) {}
 
-    // Notifica todos os admins ativos, exceto quem originou o evento.
+    // Notifica todos os admins ativos, exceto quem originou o evento. Só no sino, sem e-mail.
     // Nunca lança erro: uma falha aqui não pode desfazer a vaga, categoria ou cadastro que a disparou.
     async execute(notification: IAdminNotification, except_user_id?: string): Promise<void> {
         try {
@@ -21,10 +21,10 @@ class NotifyAdminsUseCase {
             await Promise.all(
                 admins
                     .filter((admin) => admin.id !== except_user_id)
-                    .map((admin) => this.notificationsRepository.create({ ...notification, user_id: admin.id }))
+                    .map((admin) => this.notifyUser.execute({ ...notification, user_id: admin.id }))
             );
         } catch (error) {
-            console.error(`[NotifyAdmins] Falha ao notificar os admins (${notification.type}):`, error);
+            console.error(`[NotifyAdmins] Falha ao buscar os admins (${notification.type}):`, error);
         }
     }
 }

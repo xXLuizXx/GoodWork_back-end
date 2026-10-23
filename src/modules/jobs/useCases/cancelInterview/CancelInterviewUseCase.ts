@@ -1,14 +1,8 @@
-import path from "path";
 import { IInterviewApplicationJobRepository } from "../../../../modules/jobs/repositories/IInterviewApplicationJobRepository";
 import { IApplicationRepository } from "../../../../modules/jobs/repositories/IApplicationRepository";
 import { inject, injectable } from "tsyringe";
 import { AppError } from "../../../../shared/errors/AppError";
-import { ISendMailDTO } from "../../../mailtrap/dtos/ISendMailDTO";
-import { INotificationsRepository } from "../../../notifications/repositories/INotificationsRepository";
-
-interface IMailProvider {
-    sendMail(data: ISendMailDTO): Promise<void>;
-}
+import { NotifyUserUseCase } from "../../../notifications/useCases/notifyUser/NotifyUserUseCase";
 
 interface ICancelInterviewDTO {
     interview_id: string;
@@ -22,8 +16,7 @@ class CancelInterviewUseCase {
     constructor(
         @inject("InterviewApplicationJobRepository") private interviewApplicationJobRepository: IInterviewApplicationJobRepository,
         @inject("ApplicationRepository") private applicationRepository: IApplicationRepository,
-        @inject("MailRepository") private mailProvider: IMailProvider,
-        @inject("NotificationsRepository") private notificationsRepository: INotificationsRepository
+        @inject(NotifyUserUseCase) private notifyUser: NotifyUserUseCase
     ) {};
 
     async execute({ interview_id, notice, company_id }: ICancelInterviewDTO): Promise<void> {
@@ -44,27 +37,24 @@ class CancelInterviewUseCase {
         await this.interviewApplicationJobRepository.cancelInterview(interview_id, notice);
         await this.applicationRepository.setHired(interview.application.id, false);
 
-        await this.notificationsRepository.create({
+        // O cancelamento encerra o processo (hired = false acima), mas o aviso fala do cancelamento
+        await this.notifyUser.execute({
             user_id: interview.application.user.id,
             type: "interview_cancelled",
             title: "Entrevista cancelada",
             body: `Sua entrevista para ${interview.application.job.vacancy} foi cancelada.`,
             resource_id: interview.application.id,
             resource_type: "application",
-        });
-
-        // O cancelamento encerra o processo (hired = false acima), mas o e-mail fala do cancelamento, como a notificação
-        const templatePath = path.resolve("src", "views", "emails", "interview-cancelled.hbs");
-
-        await this.mailProvider.sendMail({
-            to: interview.application.user.email,
-            subject: `Entrevista cancelada — ${interview.application.job.vacancy}`,
-            variables: {
-                name: interview.application.user.name,
-                vacancy_name: interview.application.job.vacancy,
-                notice,
+            email: {
+                to: interview.application.user.email,
+                subject: `Entrevista cancelada — ${interview.application.job.vacancy}`,
+                template: "interview-cancelled.hbs",
+                variables: {
+                    name: interview.application.user.name,
+                    vacancy_name: interview.application.job.vacancy,
+                    notice,
+                },
             },
-            path: templatePath,
         });
     }
 }
