@@ -44,7 +44,7 @@ const publicJobsLimiter = rateLimit({
 
 app.use("/jobs/public", publicJobsLimiter);
 
-app.use("api/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(router);
 
 app.use((err: Error, _request: Request, response: Response, _next: NextFunction) => {
