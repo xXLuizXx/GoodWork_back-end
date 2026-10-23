@@ -3,6 +3,7 @@ import { IndividualUser } from "../../../../modules/accounts/infra/typeorm/entit
 import { CompanyUser } from "../../../../modules/accounts/infra/typeorm/entities/CompanyUser";
 import { IUsersRepository } from "../../../../modules/accounts/repositories/IUsersRepository";
 import { inject, injectable } from "tsyringe";
+import { AppError } from "../../../../shared/errors/AppError";
 
 interface IProfileUser {
     id: string;
@@ -32,19 +33,43 @@ class ProfileUserUseCase {
         const individualUser = new IndividualUser();
         const companyUser = new CompanyUser();
 
-        user.road = profileData.road;
-        user.number = profileData.number;
-        user.neighborhood = profileData.neighborhood;
-        user.telephone = profileData.telephone;
+        // Mesmas regras do cadastro: o perfil não pode ficar com campos obrigatórios em branco
+        const text = (value: unknown) => (value ?? "").toString().trim();
+        const road = text(profileData.road);
+        const number = text(profileData.number);
+        const neighborhood = text(profileData.neighborhood);
+        const telephone = text(profileData.telephone);
 
-        if(user.user_type === "individual"){  
-            individualUser.functionn = profileData.functionn;
-            individualUser.ability = profileData.ability;
+        if (!road || !number || !neighborhood || !telephone) {
+            throw new AppError("Preencha rua, número, bairro e telefone.");
+        }
+
+        user.road = road;
+        user.number = number;
+        user.neighborhood = neighborhood;
+        user.telephone = telephone;
+
+        if(user.user_type === "individual"){
+            const functionn = text(profileData.functionn);
+            const ability = text(profileData.ability);
+
+            if (!functionn || !ability) {
+                throw new AppError("Preencha função e habilidades.");
+            }
+
+            individualUser.functionn = functionn;
+            individualUser.ability = ability;
             individualUser.is_employee = profileData.is_employee;
 
             await this.usersRepository.update(user, individualUser);
         }else if(user.user_type === "company"){
-            companyUser.business_area = profileData.business_area;
+            const business_area = text(profileData.business_area);
+
+            if (!business_area) {
+                throw new AppError("Informe a área de atuação da empresa.");
+            }
+
+            companyUser.business_area = business_area;
 
             await this.usersRepository.update(user, companyUser);
         }
