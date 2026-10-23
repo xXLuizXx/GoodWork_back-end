@@ -244,7 +244,7 @@ class UsersRepository implements IUsersRepository {
         return { total: individual + company, individual, company };
     }
 
-    async updateCurriculum(id: string, curriculum: string): Promise<void> {
+    async updateCurriculum(id: string, curriculum: string | null): Promise<void> {
         await this.individualRepository
             .createQueryBuilder()
             .update('individual_users')

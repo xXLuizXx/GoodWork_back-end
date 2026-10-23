@@ -13,7 +13,7 @@ interface IUsersRepository{
     listAllUsersString(search: string, id: string): Promise<IDataUsersDTO[]>;
     updateUstatus(id: string, active: boolean): Promise<void>;
     updatePassword(id: string, passwordHash: string): Promise<void>;
-    updateCurriculum(id: string, curriculum: string): Promise<void>;
+    updateCurriculum(id: string, curriculum: string | null): Promise<void>;
     countByType(): Promise<{ total: number; individual: number; company: number }>;
     listAllUsersForGenerate(): Promise<IDataUsersDTO[]>;
     getCategoriesInterest(id: string): Promise<string>;

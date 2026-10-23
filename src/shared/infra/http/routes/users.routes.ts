@@ -16,6 +16,7 @@ import { ResetPasswordController } from "../../../../modules/accounts/useCases/r
 import { VerifyAccountController } from "../../../../modules/accounts/useCases/verifyAccount/VerifyAccountController";
 import { ChangePasswordController } from "../../../../modules/accounts/useCases/changePassword/ChangePasswordController";
 import { UpdateUserCurriculumController } from "../../../../modules/accounts/useCases/updateUserCurriculum/UpdateUserCurriculumController";
+import { DeleteUserCurriculumController } from "../../../../modules/accounts/useCases/deleteUserCurriculum/DeleteUserCurriculumController";
 
 const usersRoutes = Router();
 const createUserController = new CreateUserController;
@@ -32,6 +33,7 @@ const resetPasswordController = new ResetPasswordController;
 const verifyAccountController = new VerifyAccountController;
 const changePasswordController = new ChangePasswordController;
 const updateUserCurriculumController = new UpdateUserCurriculumController;
+const deleteUserCurriculumController = new DeleteUserCurriculumController;
 
 usersRoutes.post("/", uploadCurriculum.single("curriculum"), persistUpload("curriculums/curriculums_user_profile"), createUserController.handle);
 usersRoutes.patch("/avatar", ensureAuthenticated, uploadAvatar.single("avatar"), persistUpload("avatar"), updateUserAvatarController.handle);
@@ -39,6 +41,7 @@ usersRoutes.get("/profile", ensureAuthenticated, getProfilleUser.handle);
 usersRoutes.patch("/profile/updateData", ensureAuthenticated, updateDataProfileUser.updateDataProfileUser);
 usersRoutes.patch("/profile/changePassword", ensureAuthenticated, changePasswordController.handle);
 usersRoutes.patch("/curriculum", ensureAuthenticated, uploadCurriculum.single("curriculum"), persistUpload("curriculums/curriculums_user_profile"), updateUserCurriculumController.handle);
+usersRoutes.delete("/curriculum", ensureAuthenticated, deleteUserCurriculumController.handle);
 usersRoutes.post("/getAllUsers", ensureAuthenticated, ensureUserCompany, listUsersForCompanyController.listAllUsersForCompany);
 usersRoutes.post("/getAllUsersSearch", ensureAuthenticated, ensureUserCompany, listUsersForStringController.listAllUsersSearch);
 usersRoutes.patch("/updateStatusUser", ensureAuthenticated, ensureAdmin, updateStatusUserController.updateStatus);
