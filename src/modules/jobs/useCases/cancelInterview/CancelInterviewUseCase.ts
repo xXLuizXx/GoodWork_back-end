@@ -53,15 +53,16 @@ class CancelInterviewUseCase {
             resource_type: "application",
         });
 
-        const templatePath = path.resolve("src", "views", "emails", "not-hired.hbs");
+        // O cancelamento encerra o processo (hired = false acima), mas o e-mail fala do cancelamento, como a notificação
+        const templatePath = path.resolve("src", "views", "emails", "interview-cancelled.hbs");
 
         await this.mailProvider.sendMail({
             to: interview.application.user.email,
-            subject: `Resultado do processo seletivo — ${interview.application.job.vacancy}`,
+            subject: `Entrevista cancelada — ${interview.application.job.vacancy}`,
             variables: {
                 name: interview.application.user.name,
                 vacancy_name: interview.application.job.vacancy,
-                feedback: notice,
+                notice,
             },
             path: templatePath,
         });

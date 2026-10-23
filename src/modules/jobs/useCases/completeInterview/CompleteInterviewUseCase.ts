@@ -74,6 +74,14 @@ class CompleteInterviewUseCase {
                 },
                 path: templatePath,
             });
+            await this.notificationsRepository.create({
+                user_id: interview.application.user.id,
+                type: "not_hired",
+                title: "Resultado do processo seletivo",
+                body: `O processo seletivo para ${interview.application.job.vacancy} foi concluído e você não foi selecionado desta vez.`,
+                resource_id: interview.application.id,
+                resource_type: "application",
+            });
         }
     }
 }
