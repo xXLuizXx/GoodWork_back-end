@@ -4354,7 +4354,9 @@
             "enum": [
               "application",
               "interview",
-              "job"
+              "job",
+              "category",
+              "user"
             ],
             "nullable": true
           },

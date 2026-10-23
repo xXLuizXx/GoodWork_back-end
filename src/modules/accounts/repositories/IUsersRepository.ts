@@ -17,6 +17,7 @@ interface IUsersRepository{
     countByType(): Promise<{ total: number; individual: number; company: number }>;
     listAllUsersForGenerate(): Promise<IDataUsersDTO[]>;
     getCategoriesInterest(id: string): Promise<string>;
+    findAdmins(): Promise<User[]>;
 }
 
 export type { IUsersRepository }

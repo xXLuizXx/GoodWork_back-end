@@ -9,7 +9,7 @@ class CategoriesRepository implements ICategoriesRepository {
         this.repository = getRepository(Category);
     }
     
-    async create({name, description, user_id} : ICreatedCategoryDTO): Promise<void>{
+    async create({name, description, user_id} : ICreatedCategoryDTO): Promise<Category>{
         const category = this.repository.create({
             name,
             description,
@@ -17,6 +17,8 @@ class CategoriesRepository implements ICategoriesRepository {
         });
 
         await this.repository.save(category);
+
+        return category;
     }
 
     async list(): Promise<Category[]>{

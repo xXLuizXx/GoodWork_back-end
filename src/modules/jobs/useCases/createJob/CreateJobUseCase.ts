@@ -3,6 +3,7 @@ import { IJobsRepository } from "../../../../modules/jobs/repositories/IJobsRepo
 import { Job } from "../../../../modules/jobs/infra/typeorm/entities/Job";
 import { inject, injectable } from "tsyringe"
 import { parseDateOnly } from "../../../../utils/dateOnly";
+import { NotifyAdminsUseCase } from "../../../notifications/useCases/notifyAdmins/NotifyAdminsUseCase";
 
 interface IRequest {
     vacancy: string;
@@ -23,7 +24,10 @@ interface IRequest {
 @injectable()
 class CreateJobUseCase{
 
-    constructor(@inject("JobsRepository") private jobsRepository: IJobsRepository) {}
+    constructor(
+        @inject("JobsRepository") private jobsRepository: IJobsRepository,
+        @inject(NotifyAdminsUseCase) private notifyAdmins: NotifyAdminsUseCase
+    ) {}
 
     async execute({ 
         vacancy,
@@ -55,6 +59,15 @@ class CreateJobUseCase{
             amount_vacancy,
             closing_date
         });
+
+        // A vaga nasce pendente (valid_vacancy = null) até um admin aprovar
+        await this.notifyAdmins.execute({
+            type: "job_pending_validation",
+            title: "Nova vaga para aprovar",
+            body: `${contractor || "Uma empresa"} cadastrou a vaga ${vacancy}.`,
+            resource_id: job.id,
+            resource_type: "job",
+        }, user_id);
 
         return job;
     }

@@ -226,6 +226,10 @@ class UsersRepository implements IUsersRepository {
             .execute();
     }
 
+    async findAdmins(): Promise<User[]> {
+        return this.baseRepository.find({ where: { isAdmin: true, active: true } });
+    }
+
     async countByType(): Promise<{ total: number; individual: number; company: number }> {
         const individual = await this.baseRepository.createQueryBuilder("user")
             .where("user.user_type = :type", { type: "individual" })

@@ -4,7 +4,7 @@ interface ICreateNotificationDTO {
     title: string;
     body: string;
     resource_id?: string;
-    resource_type?: "application" | "interview" | "job";
+    resource_type?: "application" | "interview" | "job" | "category" | "user";
 }
 
 export type { ICreateNotificationDTO };

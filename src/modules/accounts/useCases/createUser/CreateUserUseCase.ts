@@ -10,6 +10,7 @@ import { hash } from "bcrypt";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IStorageProvider } from "../../../../shared/container/providers/StorageProvider/IStorageProvider";
 import { isValidCNPJ, isValidCPF, isValidEmail } from "../../../../utils/documentValidator";
+import { NotifyAdminsUseCase } from "../../../notifications/useCases/notifyAdmins/NotifyAdminsUseCase";
 
 interface IMailProvider {
     sendMail(data: ISendMailDTO): Promise<void>;
@@ -28,6 +29,8 @@ class CreateUserUseCase {
         private mailProvider: IMailProvider,
         @inject("StorageProvider")
         private storageProvider: IStorageProvider,
+        @inject(NotifyAdminsUseCase)
+        private notifyAdmins: NotifyAdminsUseCase,
     ) {}
 
     async execute({
@@ -170,6 +173,15 @@ class CreateUserUseCase {
             await this.usersRepository.deleteById(user.id);
             await reject("Não foi possível enviar o e-mail de verificação. Tente novamente em instantes.", 503);
         }
+
+        // Só depois do e-mail: se ele falhar, o cadastro é desfeito e a notificação apontaria para um usuário inexistente
+        await this.notifyAdmins.execute({
+            type: "user_registered",
+            title: "Novo usuário cadastrado",
+            body: `${user.name} se cadastrou como ${user_type === "company" ? "empresa" : "candidato"}.`,
+            resource_id: user.id,
+            resource_type: "user",
+        });
     }
 
 }

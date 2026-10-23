@@ -9,7 +9,7 @@ interface ICreatedCategoryDTO{
 interface ICategoriesRepository{
     findByName(name: string): Promise<Category>;
     list(): Promise<Category[]>;
-    create({name, description, user_id}: ICreatedCategoryDTO): Promise<void>;
+    create({name, description, user_id}: ICreatedCategoryDTO): Promise<Category>;
     getCategoriesNotValidated(): Promise<Category[]>;
     aproveCategorie(id: string, aprove: boolean): Promise<void>;
     listAllCategories(): Promise<Category[]>;
