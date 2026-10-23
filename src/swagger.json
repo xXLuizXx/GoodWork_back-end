@@ -1,48 +1,4327 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "RentalX Documentation",
-        "description": "This is an API Rent",
-        "version": "1.0",
-        "contact": {
-            "email": "luizfernandofonseca123@gmail.com"
-        }
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GoodWork API",
+    "version": "1.0.0",
+    "description": "API da plataforma GoodWork, que conecta candidatos e empresas.\n\nPara testar rotas protegidas: faça login em **POST /sessions**, copie o `token` e cole no botão **Authorize**.\n\nDatas com horário (entrevistas) trafegam em ISO 8601 com fuso; datas sem horário (encerramento de vaga) trafegam como `AAAA-MM-DD`. Erros respondem `{ \"message\": \"...\" }`."
+  },
+  "servers": [
+    {
+      "url": "https://goodwork-back-end.onrender.com",
+      "description": "Produção"
     },
-    "paths": {
-        "/categories": {
-            "post": {
-                "sumary": "Create a category",
-                "description": "Create a new category",
-                "requesBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string"
-                                    },
-                                    "description": {
-                                        "type": "string"
-                                    }
-                                },
-                                "example": {
-                                    "name": "category name sample",
-                                    "description": "category description sample"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "500": {
-                        "description": "Category already exists"
-                    }
-                }
-            }
-        }
+    {
+      "url": "http://localhost:3333",
+      "description": "Local"
     }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação"
+    },
+    {
+      "name": "Usuários"
+    },
+    {
+      "name": "Categorias"
+    },
+    {
+      "name": "Vagas"
+    },
+    {
+      "name": "Candidaturas"
+    },
+    {
+      "name": "Entrevistas"
+    },
+    {
+      "name": "Notificações"
+    },
+    {
+      "name": "Relatórios"
+    },
+    {
+      "name": "E-mail"
+    },
+    {
+      "name": "Arquivos"
+    }
+  ],
+  "paths": {
+    "/sessions": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login",
+        "description": "Pública (sem login).\n\nRetorna o token de acesso (1h) e o refresh token (1 dia). Use o `token` no botão **Authorize**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              },
+              "example": {
+                "email": "emp@teste.com.br",
+                "password": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "E-mail ou senha incorretos, ou conta não verificada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refresh-token": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Renovar token",
+        "description": "Pública (sem login).\n\nO refresh token pode ir no corpo (`token`), no header `x-access-token` ou na query `?token=`.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "Refresh token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Novos tokens",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Refresh token inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/logout": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Logout",
+        "description": "Pública (sem login).\n\nInvalida o refresh token no banco. Idempotente: sempre responde 204.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh_token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refresh_token"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastrar usuário (candidato ou empresa)",
+        "description": "Pública (sem login).\n\nValida CPF (candidato) ou CNPJ (empresa) com dígito verificador e duplicidade, e envia o e-mail de verificação. Se o e-mail falhar, o cadastro é desfeito (503). O currículo é opcional.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_type": {
+                    "type": "string",
+                    "enum": [
+                      "individual",
+                      "company"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Mínimo 6 caracteres"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "CPF (individual) ou CNPJ (company), com ou sem máscara"
+                  },
+                  "telephone": {
+                    "type": "string"
+                  },
+                  "road": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  },
+                  "neighborhood": {
+                    "type": "string"
+                  },
+                  "sex": {
+                    "type": "string",
+                    "description": "Somente candidato"
+                  },
+                  "functionn": {
+                    "type": "string",
+                    "description": "Somente candidato"
+                  },
+                  "ability": {
+                    "type": "string",
+                    "description": "Somente candidato"
+                  },
+                  "is_employee": {
+                    "type": "boolean",
+                    "description": "Somente candidato"
+                  },
+                  "categories_interest": {
+                    "type": "string",
+                    "description": "Somente candidato"
+                  },
+                  "business_area": {
+                    "type": "string",
+                    "description": "Somente empresa"
+                  },
+                  "curriculum": {
+                    "type": "string",
+                    "description": "PDF do currículo (opcional, somente candidato)",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "user_type",
+                  "name",
+                  "email",
+                  "password",
+                  "identifier",
+                  "telephone",
+                  "road",
+                  "number",
+                  "neighborhood"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cadastrado"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Falha ao enviar o e-mail de verificação; cadastro desfeito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/verify-account": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Verificar conta",
+        "description": "Pública (sem login).\n\nLink enviado por e-mail no cadastro.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Token inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/forgot-password": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Esqueci minha senha",
+        "description": "Pública (sem login).\n\nEnvia o e-mail com o link de redefinição.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/reset-password": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Redefinir senha",
+        "description": "Pública (sem login).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Token recebido por e-mail"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "description": "Mínimo 6 caracteres"
+                  }
+                },
+                "required": [
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Token inválido/expirado ou senha inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Ver perfil",
+        "description": "Requer login.\n\nSem `id`, retorna o perfil do usuário logado.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Perfil de outro usuário"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/profile/updateData": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar dados do perfil",
+        "description": "Requer login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "telephone": {
+                    "type": "string"
+                  },
+                  "road": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": "string"
+                  },
+                  "neighborhood": {
+                    "type": "string"
+                  },
+                  "functionn": {
+                    "type": "string",
+                    "description": "Candidato"
+                  },
+                  "ability": {
+                    "type": "string",
+                    "description": "Candidato"
+                  },
+                  "is_employee": {
+                    "type": "boolean",
+                    "description": "Candidato"
+                  },
+                  "business_area": {
+                    "type": "string",
+                    "description": "Empresa"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Perfil atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/profile/changePassword": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Alterar senha",
+        "description": "Requer login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "current_password": {
+                    "type": "string"
+                  },
+                  "new_password": {
+                    "type": "string",
+                    "description": "Mínimo 6 caracteres"
+                  }
+                },
+                "required": [
+                  "current_password",
+                  "new_password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Senha atual incorreta ou nova senha inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/avatar": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Trocar foto de perfil",
+        "description": "Requer login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "avatar": {
+                    "type": "string",
+                    "description": "Imagem",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "avatar"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/curriculum": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Trocar currículo do perfil",
+        "description": "Requer login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "curriculum": {
+                    "type": "string",
+                    "description": "PDF",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "curriculum"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/getAllUsers": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar candidatos",
+        "description": "Requer login de **empresa**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Id da empresa logada",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Candidatos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/getAllUsersSearch": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Pesquisar candidatos",
+        "description": "Requer login de **empresa**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Id da empresa logada",
+                    "format": "uuid"
+                  },
+                  "search": {
+                    "type": "string",
+                    "description": "Termo de busca"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Candidatos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/updateStatusUser": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Ativar ou desativar usuário",
+        "description": "Requer login de **administrador**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "active"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Listar categorias validadas",
+        "description": "Pública (sem login).",
+        "responses": {
+          "200": {
+            "description": "Categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Criar categoria",
+        "description": "Requer login de **administrador ou empresa**.\n\nCategorias criadas por empresas ficam pendentes até um administrador validar.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criada"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories/import": {
+      "post": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Importar categorias por CSV",
+        "description": "Requer login de **administrador**.\n\nCSV com as colunas `name,description`, sem cabeçalho.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "Arquivo CSV",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Importadas"
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories/allCategories": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Listar todas as categorias (inclusive pendentes)",
+        "description": "Requer login de **administrador**.",
+        "responses": {
+          "200": {
+            "description": "Categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories/categoriesNotValidated": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Listar categorias pendentes de validação",
+        "description": "Requer login de **administrador**.",
+        "responses": {
+          "200": {
+            "description": "Categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories/searchCategories": {
+      "get": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Pesquisar categorias",
+        "description": "Requer login de **administrador**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trecho do nome"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categorias",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/categories/validateCategory": {
+      "patch": {
+        "tags": [
+          "Categorias"
+        ],
+        "summary": "Validar ou recusar categoria",
+        "description": "Requer login de **administrador**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "aprove": {
+                    "type": "boolean",
+                    "description": "true = valida a categoria"
+                  }
+                },
+                "required": [
+                  "id",
+                  "aprove"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/public": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas abertas (público)",
+        "description": "Pública (sem login).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "category_id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filtra por categoria"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicJob"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/public/search": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Pesquisar vagas abertas (público)",
+        "description": "Pública (sem login).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trecho do nome da vaga"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicJob"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parâmetro `q` ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/public/{id}": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Detalhar vaga (público)",
+        "description": "Pública (sem login).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Id da vaga"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vaga",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicJob"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "post": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Cadastrar vaga",
+        "description": "Requer login.\n\nA vaga fica pendente até um administrador aprovar. O banner é obrigatório.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "vacancy": {
+                    "type": "string",
+                    "description": "Título da vaga"
+                  },
+                  "contractor": {
+                    "type": "string",
+                    "description": "Nome da empresa contratante"
+                  },
+                  "description_vacancy": {
+                    "type": "string"
+                  },
+                  "requirements": {
+                    "type": "string"
+                  },
+                  "workload": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "benefits": {
+                    "type": "string"
+                  },
+                  "category_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "amount_vacancy": {
+                    "type": "integer",
+                    "description": "Quantidade de vagas"
+                  },
+                  "closing_date": {
+                    "type": "string",
+                    "description": "Dia de encerramento (a vaga fica aberta o dia todo)",
+                    "format": "date",
+                    "example": "2026-12-15"
+                  },
+                  "banner": {
+                    "type": "string",
+                    "description": "Imagem do banner",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "vacancy",
+                  "description_vacancy",
+                  "category_id",
+                  "amount_vacancy",
+                  "closing_date",
+                  "banner"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vaga criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Banner ausente ou data inválida (formato AAAA-MM-DD)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/list": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas validadas",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listCategories": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas de uma categoria",
+        "description": "Requer login.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "category_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listVacancy": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Pesquisar vagas pelo título",
+        "description": "Requer login.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "vacancy",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trecho do título"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listForUserLogged": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas para o candidato logado",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/countVacancyNotValidated": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Contar vagas pendentes de aprovação",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Total",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listVacancyNotValidated": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas pendentes de aprovação",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/aproveJob": {
+      "patch": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Aprovar ou recusar vaga",
+        "description": "Requer login de **administrador**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id_vacancy": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "valid": {
+                    "type": "boolean",
+                    "description": "true = aprova"
+                  }
+                },
+                "required": [
+                  "id_vacancy",
+                  "valid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Aprovada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listAllJobs": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar todas as vagas",
+        "description": "Requer login de **administrador**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trecho do título"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/listJobsCompany": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Listar vagas de uma empresa",
+        "description": "Requer login de **empresa**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id da empresa"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vagas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Job"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/getJob": {
+      "get": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Detalhar vaga",
+        "description": "Requer login de **empresa**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Id da vaga"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vaga",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/updateJob": {
+      "patch": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Editar vaga",
+        "description": "Requer login de **empresa**.\n\nProrrogar a data de encerramento (para hoje ou depois) reabre uma vaga encerrada. O banner é opcional: sem arquivo, mantém o atual.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "vacancy": {
+                    "type": "string"
+                  },
+                  "contractor": {
+                    "type": "string"
+                  },
+                  "description_vacancy": {
+                    "type": "string"
+                  },
+                  "requirements": {
+                    "type": "string"
+                  },
+                  "workload": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "benefits": {
+                    "type": "string"
+                  },
+                  "category_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "amount_vacancy": {
+                    "type": "integer"
+                  },
+                  "vacancy_available": {
+                    "type": "string",
+                    "enum": [
+                      "true",
+                      "false"
+                    ]
+                  },
+                  "closing_date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-12-15"
+                  },
+                  "updated_at": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "banner": {
+                    "type": "string",
+                    "description": "Nova imagem (opcional)",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "job_id",
+                  "closing_date"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vaga atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Data inválida (formato AAAA-MM-DD) ou erro ao salvar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/jobs/updateStatusJob": {
+      "patch": {
+        "tags": [
+          "Vagas"
+        ],
+        "summary": "Abrir ou encerrar vaga",
+        "description": "Requer login.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "valid": {
+                    "type": "boolean",
+                    "description": "true = aberta"
+                  }
+                },
+                "required": [
+                  "id",
+                  "valid"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vaga atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application": {
+      "post": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Candidatar-se a uma vaga",
+        "description": "Requer login.\n\nSem arquivo, usa uma cópia do currículo do perfil. Sem nenhum currículo, responde 400.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "job_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "user_id": {
+                    "type": "string",
+                    "description": "Opcional; padrão = usuário logado",
+                    "format": "uuid"
+                  },
+                  "curriculum_user": {
+                    "type": "string",
+                    "description": "PDF (opcional)",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "job_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Candidatura criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Já se candidatou ou sem currículo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application/check": {
+      "get": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Verificar se já se candidatou",
+        "description": "Requer login.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasApplied": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application/myApplications": {
+      "get": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Minhas candidaturas",
+        "description": "Requer login.\n\n`interview` é `null` enquanto não houver entrevista marcada.",
+        "responses": {
+          "200": {
+            "description": "Candidaturas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application/getApplications": {
+      "get": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Candidaturas de uma vaga",
+        "description": "Requer login de **empresa**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Candidaturas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application/finalizeApplications": {
+      "patch": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Finalizar seleção para entrevista",
+        "description": "Requer login de **empresa**.\n\nAprova/reprova candidatos em lote. Quando `selected_count` atinge `amount_vacancy`, a vaga é encerrada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "selected_count": {
+                    "type": "integer",
+                    "description": "Quantidade de aprovados"
+                  },
+                  "decisions": {
+                    "type": "object",
+                    "description": "Chave = id da candidatura",
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "job_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "approved": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "selected_count",
+                  "decisions"
+                ]
+              },
+              "example": {
+                "selected_count": 1,
+                "decisions": {
+                  "a1b2c3d4-0000-0000-0000-000000000001": {
+                    "job_id": "f1a2b3c4-0000-0000-0000-000000000001",
+                    "approved": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Finalizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/application/{id}": {
+      "delete": {
+        "tags": [
+          "Candidaturas"
+        ],
+        "summary": "Cancelar candidatura",
+        "description": "Requer login.\n\nSó é permitido enquanto a candidatura não foi avaliada.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Id da candidatura"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "A candidatura é de outro usuário",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Candidatura já avaliada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview": {
+      "post": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Marcar entrevista(s)",
+        "description": "Requer login de **empresa**.\n\nAceita um objeto ou uma lista. `scheduled_date` deve ter fuso (ISO 8601) e não pode estar no passado. `location` é obrigatório para presencial; `meeting_link`, para online.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/InterviewInput"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/InterviewInput"
+                    }
+                  }
+                ]
+              },
+              "example": {
+                "application_id": "a1b2c3d4-0000-0000-0000-000000000001",
+                "interview_type": "online",
+                "scheduled_date": "2026-12-15T12:30:00.000Z",
+                "duration_minutes": 30,
+                "meeting_link": "https://meet.google.com/abc-defg-hij",
+                "interviewer_name": "Maria Souza",
+                "interviewer_email": "maria@empresa.com",
+                "notes": "Trazer portfólio"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Marcada"
+          },
+          "400": {
+            "description": "Data sem fuso/no passado, entrevista já existente ou dados faltando",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/searchInterview": {
+      "post": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Buscar entrevista de uma candidatura",
+        "description": "Requer login de **empresa**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "application_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "application_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entrevista",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Interview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/searchAllInterview": {
+      "get": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Listar entrevistas da empresa",
+        "description": "Requer login de **empresa**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "application_id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entrevistas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Interview"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/rescheduleInterview": {
+      "patch": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Remarcar entrevista",
+        "description": "Requer login de **empresa**.\n\n`notice` (aviso ao candidato) é obrigatório. Entrevistas canceladas ou concluídas não podem ser remarcadas.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "interview_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "notice": {
+                    "type": "string",
+                    "description": "Aviso enviado ao candidato"
+                  },
+                  "scheduled_date": {
+                    "type": "string",
+                    "description": "ISO 8601 com fuso",
+                    "format": "date-time",
+                    "example": "2026-12-15T12:30:00.000Z"
+                  },
+                  "duration_minutes": {
+                    "type": "integer"
+                  },
+                  "interview_type": {
+                    "type": "string",
+                    "enum": [
+                      "presencial",
+                      "online"
+                    ]
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "meeting_link": {
+                    "type": "string"
+                  },
+                  "interviewer_name": {
+                    "type": "string"
+                  },
+                  "interviewer_email": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "interview_id",
+                  "notice"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Remarcada"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/cancelInterview": {
+      "patch": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Cancelar entrevista",
+        "description": "Requer login de **empresa**.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "interview_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "notice": {
+                    "type": "string",
+                    "description": "Motivo enviado ao candidato"
+                  }
+                },
+                "required": [
+                  "interview_id",
+                  "notice"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cancelada"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/completeInterview": {
+      "patch": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Concluir entrevista",
+        "description": "Requer login de **empresa**.\n\nRegistra o feedback e a decisão final de contratação (`hired`: true, false ou null = sem decisão).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "interview_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "feedback": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "hired": {
+                    "type": "boolean",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "interview_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Concluída"
+          },
+          "400": {
+            "description": "Dados inválidos ou regra de negócio violada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/interview/myInterview": {
+      "get": {
+        "tags": [
+          "Entrevistas"
+        ],
+        "summary": "Entrevista do candidato",
+        "description": "Requer login.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "application_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entrevista",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Interview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Listar notificações",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Notificações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Notification"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Contar não lidas",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Total",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/notifications/read-all": {
+      "patch": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Marcar todas como lidas",
+        "description": "Requer login.",
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/notifications/{id}/read": {
+      "patch": {
+        "tags": [
+          "Notificações"
+        ],
+        "summary": "Marcar uma como lida",
+        "description": "Requer login.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Id da notificação"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Sucesso, sem corpo"
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/reports/admin/overview": {
+      "get": {
+        "tags": [
+          "Relatórios"
+        ],
+        "summary": "Visão geral (admin)",
+        "description": "Requer login de **administrador**.",
+        "responses": {
+          "200": {
+            "description": "Indicadores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/reports/admin/jobs-by-category": {
+      "get": {
+        "tags": [
+          "Relatórios"
+        ],
+        "summary": "Vagas por categoria (admin)",
+        "description": "Requer login de **administrador**.",
+        "responses": {
+          "200": {
+            "description": "Indicadores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/reports/company/overview": {
+      "get": {
+        "tags": [
+          "Relatórios"
+        ],
+        "summary": "Visão geral da empresa",
+        "description": "Requer login de **empresa**.",
+        "responses": {
+          "200": {
+            "description": "Indicadores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/reports/company/funnel": {
+      "get": {
+        "tags": [
+          "Relatórios"
+        ],
+        "summary": "Funil de seleção da empresa",
+        "description": "Requer login de **empresa**.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "job_id",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Filtra por vaga"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Funil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/reports/individual/overview": {
+      "get": {
+        "tags": [
+          "Relatórios"
+        ],
+        "summary": "Visão geral do candidato",
+        "description": "Requer login.",
+        "responses": {
+          "200": {
+            "description": "Indicadores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/mail": {
+      "post": {
+        "tags": [
+          "E-mail"
+        ],
+        "summary": "Enviar e-mail de contato",
+        "description": "Pública (sem login).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "to": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "variables": {
+                    "type": "string",
+                    "description": "JSON com as variáveis do template"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "Anexo (opcional)",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "to",
+                  "subject"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Enviado"
+          }
+        }
+      }
+    },
+    "/mail/batch-rejections": {
+      "post": {
+        "tags": [
+          "E-mail"
+        ],
+        "summary": "Enviar e-mails de reprovação em lote",
+        "description": "Pública (sem login).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rejections": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "to": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "candidate_name": {
+                          "type": "string"
+                        },
+                        "company_name": {
+                          "type": "string"
+                        },
+                        "vacancy_name": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "rejections"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultado por destinatário"
+          }
+        }
+      }
+    },
+    "/banners/{filename}": {
+      "get": {
+        "tags": [
+          "Arquivos"
+        ],
+        "summary": "Baixar banner de vaga",
+        "description": "Pública (sem login).\n\nEm produção (Cloudinary) responde 302 redirecionando para a URL do arquivo; localmente envia o arquivo.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome do arquivo salvo no banco (ex.: `a1b2c3.pdf`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          },
+          "302": {
+            "description": "Redirecionamento para o Cloudinary"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/avatars/{filename}": {
+      "get": {
+        "tags": [
+          "Arquivos"
+        ],
+        "summary": "Baixar foto de perfil",
+        "description": "Pública (sem login).\n\nEm produção (Cloudinary) responde 302 redirecionando para a URL do arquivo; localmente envia o arquivo.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome do arquivo salvo no banco (ex.: `a1b2c3.pdf`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          },
+          "302": {
+            "description": "Redirecionamento para o Cloudinary"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/curriculum_application/{filename}": {
+      "get": {
+        "tags": [
+          "Arquivos"
+        ],
+        "summary": "Baixar currículo enviado em uma candidatura",
+        "description": "Pública (sem login).\n\nEm produção (Cloudinary) responde 302 redirecionando para a URL do arquivo; localmente envia o arquivo.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome do arquivo salvo no banco (ex.: `a1b2c3.pdf`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          },
+          "302": {
+            "description": "Redirecionamento para o Cloudinary"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/curriculum_user_profile/{filename}": {
+      "get": {
+        "tags": [
+          "Arquivos"
+        ],
+        "summary": "Baixar currículo do perfil",
+        "description": "Pública (sem login).\n\nEm produção (Cloudinary) responde 302 redirecionando para a URL do arquivo; localmente envia o arquivo.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "filename",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Nome do arquivo salvo no banco (ex.: `a1b2c3.pdf`)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo"
+          },
+          "302": {
+            "description": "Redirecionamento para o Cloudinary"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "avatar": {
+                "type": "string"
+              },
+              "avatarUrl": {
+                "type": "string"
+              },
+              "isAdmin": {
+                "type": "boolean"
+              },
+              "user_type": {
+                "type": "string",
+                "enum": [
+                  "individual",
+                  "company"
+                ]
+              }
+            }
+          },
+          "token": {
+            "type": "string",
+            "description": "Token de acesso (1h)"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token (1 dia)"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "telephone": {
+            "type": "string"
+          },
+          "avatar": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "road": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          },
+          "neighborhood": {
+            "type": "string"
+          },
+          "user_type": {
+            "type": "string",
+            "enum": [
+              "individual",
+              "company"
+            ]
+          },
+          "isAdmin": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Conta ativa (o admin pode desativar)"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "individualData": {
+            "type": "object",
+            "properties": {
+              "sex": {
+                "type": "string"
+              },
+              "functionn": {
+                "type": "string"
+              },
+              "ability": {
+                "type": "string"
+              },
+              "is_employee": {
+                "type": "boolean"
+              },
+              "curriculum": {
+                "type": "string",
+                "nullable": true
+              },
+              "categories_interest": {
+                "type": "string"
+              }
+            }
+          },
+          "companyData": {
+            "type": "object",
+            "properties": {
+              "business_area": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "valid_category": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vacancy": {
+            "type": "string"
+          },
+          "contractor": {
+            "type": "string"
+          },
+          "description_vacancy": {
+            "type": "string"
+          },
+          "requirements": {
+            "type": "string"
+          },
+          "workload": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "benefits": {
+            "type": "string"
+          },
+          "banner": {
+            "type": "string"
+          },
+          "amount_vacancy": {
+            "type": "integer"
+          },
+          "closing_date": {
+            "type": "string",
+            "description": "Dia de encerramento",
+            "format": "date",
+            "example": "2026-12-15"
+          },
+          "vacancy_available": {
+            "type": "boolean",
+            "description": "Aberta para candidaturas"
+          },
+          "valid_vacancy": {
+            "type": "boolean",
+            "description": "Aprovada pelo administrador"
+          },
+          "category_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "description": "Empresa dona da vaga",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PublicJob": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vacancy": {
+            "type": "string"
+          },
+          "contractor": {
+            "type": "string"
+          },
+          "description_vacancy": {
+            "type": "string"
+          },
+          "requirements": {
+            "type": "string"
+          },
+          "workload": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "benefits": {
+            "type": "string"
+          },
+          "banner": {
+            "type": "string"
+          },
+          "amount_vacancy": {
+            "type": "integer"
+          },
+          "closing_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-12-15"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "vacancy_available": {
+            "type": "boolean"
+          },
+          "valid_vacancy": {
+            "type": "boolean"
+          },
+          "category": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          },
+          "company": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "name": {
+                "type": "string"
+              },
+              "avatar": {
+                "type": "string"
+              },
+              "business_area": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "Application": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "job_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "application_approved": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Aprovado para entrevista (null = não avaliado)"
+          },
+          "hired": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Decisão final de contratação"
+          },
+          "curriculum_user": {
+            "type": "string",
+            "description": "Nome do arquivo do currículo"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "avatar": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              },
+              "telephone": {
+                "type": "string"
+              },
+              "individualData": {
+                "type": "object",
+                "properties": {
+                  "functionn": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "job": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "vacancy": {
+                "type": "string"
+              },
+              "contractor": {
+                "type": "string"
+              },
+              "amount_vacancy": {
+                "type": "integer"
+              },
+              "vacancy_available": {
+                "type": "boolean"
+              },
+              "user": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "interview": {
+            "$ref": "#/components/schemas/Interview",
+            "nullable": true
+          }
+        }
+      },
+      "InterviewInput": {
+        "type": "object",
+        "properties": {
+          "application_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "interview_type": {
+            "type": "string",
+            "enum": [
+              "presencial",
+              "online"
+            ]
+          },
+          "scheduled_date": {
+            "type": "string",
+            "description": "ISO 8601 com fuso",
+            "format": "date-time"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "description": "Padrão 30"
+          },
+          "location": {
+            "type": "string",
+            "description": "Obrigatório se presencial"
+          },
+          "meeting_link": {
+            "type": "string",
+            "description": "Obrigatório se online"
+          },
+          "interviewer_name": {
+            "type": "string"
+          },
+          "interviewer_email": {
+            "type": "string",
+            "format": "email"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "application_id",
+          "interview_type",
+          "scheduled_date",
+          "interviewer_name",
+          "interviewer_email"
+        ]
+      },
+      "Interview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "application_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "rescheduled",
+              "completed",
+              "cancelled"
+            ]
+          },
+          "interview_type": {
+            "type": "string",
+            "enum": [
+              "presencial",
+              "online"
+            ]
+          },
+          "scheduled_date": {
+            "type": "string",
+            "description": "UTC",
+            "format": "date-time"
+          },
+          "duration_minutes": {
+            "type": "integer"
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "meeting_link": {
+            "type": "string",
+            "nullable": true
+          },
+          "interviewer_name": {
+            "type": "string"
+          },
+          "interviewer_email": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "notice": {
+            "type": "string",
+            "description": "Aviso da última remarcação/cancelamento",
+            "nullable": true
+          },
+          "feedback": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "description": "Identificador do evento"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resource_type": {
+            "type": "string",
+            "enum": [
+              "application",
+              "interview",
+              "job"
+            ],
+            "nullable": true
+          },
+          "is_read": {
+            "type": "boolean"
+          },
+          "read_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
 }
