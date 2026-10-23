@@ -22,7 +22,8 @@ const aproveCategoryController = new AproveCategoryController()
 
 categoriesRoutes.post("/", ensureAuthenticated, ensureAdminOrCompany, createCategoryController.handle);
 categoriesRoutes.get("/", listCategoriesController.handle);
-categoriesRoutes.post("/import", upload.single("file"), ensureAuthenticated, ensureAdmin, importCategoryController.handle);
+// A checagem de acesso vem antes do upload, para não gravar arquivos de quem não tem permissão
+categoriesRoutes.post("/import", ensureAuthenticated, ensureAdmin, upload.single("file"), importCategoryController.handle);
 categoriesRoutes.get("/categoriesNotValidated", ensureAuthenticated, ensureAdmin, listCategoriesNotValidatedController.getCategoriesNotValidated);
 categoriesRoutes.get("/allCategories", ensureAuthenticated, ensureAdmin, listCategoriesController.allCategories);
 categoriesRoutes.patch("/validateCategory", ensureAuthenticated, ensureAdmin, aproveCategoryController.aproveCategory);

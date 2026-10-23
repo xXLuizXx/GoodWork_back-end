@@ -3511,7 +3511,7 @@
           "E-mail"
         ],
         "summary": "Enviar e-mail de contato",
-        "description": "Pública (sem login).",
+        "description": "Requer login de **empresa**.",
         "requestBody": {
           "required": true,
           "content": {
@@ -3547,8 +3547,33 @@
         "responses": {
           "200": {
             "description": "Enviado"
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/mail/batch-rejections": {
@@ -3557,7 +3582,7 @@
           "E-mail"
         ],
         "summary": "Enviar e-mails de reprovação em lote",
-        "description": "Pública (sem login).",
+        "description": "Requer login de **empresa**.",
         "requestBody": {
           "required": true,
           "content": {
@@ -3597,8 +3622,33 @@
         "responses": {
           "200": {
             "description": "Resultado por destinatário"
+          },
+          "400": {
+            "description": "Usuário sem permissão para esta rota (ou dados inválidos)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/banners/{filename}": {
